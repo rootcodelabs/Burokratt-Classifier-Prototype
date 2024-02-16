@@ -22,8 +22,10 @@ class CoreClassifier:
         # Splitting data into train and test sets
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        # Initialize BERTModel
+        # Initialize
         model = BERTModel(f"{model_location}bert")
+        model = ALBERTModel(f"{model_location}albert")
+        model = XLNetModel(f"{model_location}xlnet")        
 
         # Train the model
         accuracy, f1_score = model.train(X_train, y_train, X_test, y_test)
@@ -32,9 +34,6 @@ class CoreClassifier:
         print("BERT F1 Score:", f1_score)
         db.insert_record('models', {'model_id': f'{str(int(time.time()))}_bert', 'accuracy': accuracy, 'f1_score': f1_score})
 ########
-        # Initialize ALBERTModel
-        model = ALBERTModel(f"{model_location}albert")
-
         # Train the model
         accuracy, f1_score = model.train(X_train, y_train, X_test, y_test)
         # Print accuracy and f1_score
@@ -42,9 +41,6 @@ class CoreClassifier:
         print("ALBERTModel F1 Score:", f1_score)
         db.insert_record('models', {'model_id': f'{str(int(time.time()))}_albert', 'accuracy': accuracy, 'f1_score': f1_score})
 ########
-        # Initialize XLNetModel
-        model = XLNetModel(f"{model_location}xlnet")
-
         # Train the model
         accuracy, f1_score = model.train(X_train, y_train, X_test, y_test)
         # Print accuracy and f1_score
