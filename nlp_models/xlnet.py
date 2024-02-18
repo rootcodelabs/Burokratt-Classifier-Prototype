@@ -1,8 +1,8 @@
 import torch
 from transformers import XLNetTokenizer, XLNetForSequenceClassification
-from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
+from sklearn.metrics import accuracy_score, f1_score
 
 class CustomDataset(Dataset):
     def __init__(self, X, y, tokenizer, max_len):
@@ -34,45 +34,19 @@ class CustomDataset(Dataset):
             'labels': torch.tensor(target, dtype=torch.long)
         }
 
-class XLNetModel:
-    def __init__(self, model_path):
-        self.model_path = model_path
+class XLNetTrainer:
+    def __init__(self, model_id):
+        self.model_path = f'nlp_models/{model_id}/'
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
         self.model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=1)
 
-    def train(self, X_train, y_train, X_test, y_test):
-        train_dataset = CustomDataset(
-            X_train,
-            y_train,
-            self.tokenizer,
-            max_len=128
-        )
-
-        test_dataset = CustomDataset(
-            X_test,
-            y_test,
-            self.tokenizer,
-            max_len=128
-        )
-
-        train_loader = DataLoader(
-            train_dataset,
-            batch_size=8,
-            shuffle=True
-        )
-
-        test_loader = DataLoader(
-            test_dataset,
-            batch_size=8,
-            shuffle=False
-        )
-
+    def train(self, train_loader, test_loader, num_epochs=3, learning_rate=2e-5):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
 
-        optimizer = torch.optim.AdamW(params=self.model.parameters(), lr=2e-5)
+        optimizer = torch.optim.AdamW(params=self.model.parameters(), lr=learning_rate)
 
-        for epoch in range(3): # You can adjust the number of epochs
+        for epoch in range(num_epochs):
             self.model.train()
             train_loss = 0.0
 
@@ -93,7 +67,6 @@ class XLNetModel:
 
         self.model.save_pretrained(self.model_path)
 
-        # Evaluation
         self.model.eval()
         predictions, true_labels = [], []
 
@@ -116,14 +89,60 @@ class XLNetModel:
         print(f"Accuracy: {accuracy}, F1 Score: {f1}")
         return accuracy, f1
 
-# Example usage:
-if __name__ == "__main__":
-    X_train = [...]  # List of training texts
-    y_train = [...]  # List of corresponding training labels
-    X_test = [...]   # List of test texts
-    y_test = [...]   # List of corresponding test labels
+class XLNetClassifier:
+    def __init__(self, model_path):
+        self.model_path = model_path
+        self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
 
-    model_path = "path_to_save_model"
+    def classify_text(self, text):
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    xlnet_model = XLNetModel(model_path)
-    accuracy, f1_score = xlnet_model.train(X_train, y_train, X_test, y_test)
+        model = XLNetForSequenceClassification.from_pretrained(self.model_path)
+        model.to(device)
+        model.eval()
+
+        inputs = self.tokenizer.encode_plus(
+            text,
+            None,
+            add_special_tokens=True,
+            max_length=128,
+            padding='max_length',
+            truncation=True,
+            return_token_type_ids=True,
+            return_tensors='pt'
+        )
+
+        input_ids = inputs['input_ids'].to(device)
+        attention_mask = inputs['attention_mask'].to(device)
+
+        with torch.no_grad():
+            outputs = model(input_ids, attention_mask=attention_mask)
+            logits = outputs.logits
+
+            prediction = torch.argmax(logits, dim=1).item()
+
+        return prediction
+
+# # Example usage:
+# if __name__ == "__main__":
+#     X_train = [...]  # List of training texts
+#     y_train = [...]  # List of corresponding training labels
+#     X_test = [...]   # List of test texts
+#     y_test = [...]   # List of corresponding test labels
+
+#     train_dataset = CustomDataset(X_train, y_train, XLNetTokenizer.from_pretrained('xlnet-base-cased'), max_len=128)
+#     test_dataset = CustomDataset(X_test, y_test, XLNetTokenizer.from_pretrained('xlnet-base-cased'), max_len=128)
+
+#     train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
+#     test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
+
+#     model_path = "path_to_save_model"
+
+#     xlnet_trainer = XLNetTrainer(model_path)
+#     accuracy, f1_score = xlnet_trainer.train(train_loader, test_loader)
+
+#     # Example of using the classify_text method
+#     text_to_classify = "Your input text here"
+#     xlnet_classifier = XLNetClassifier(model_path)
+#     prediction = xlnet_classifier.classify_text(text_to_classify)
+#     print("Prediction:", prediction)
