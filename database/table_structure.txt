@@ -1,0 +1,13 @@
+Table: model_info
+----------
+model_id | TEXT (PRIMARY KEY)
+accuracy | REAL
+f1_score | REAL
+dataset_id | TEXT (FOREIGN KEY)
+
+Table: dataset_info
+----------
+dataset_id | TEXT (PRIMARY COMPOSITE KEY)
+data_id | TEXT (PRIMARY COMPOSITE KEY)
+data | TEXT
+label | TEXT

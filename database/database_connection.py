@@ -21,6 +21,34 @@ class SQLiteDatabase:
         self.cursor.execute(create_table_query)
         self.conn.commit()
 
+    def create_table_with_composite_key(self, table_name, columns, primary_key_1, primary_key_2):
+        """
+        Create a new table in the database.
+        
+        Args:
+        - table_name: Name of the table to be created.
+        - columns: A dictionary where keys are column names and values are the data types.
+                   Example: {'id': 'INTEGER PRIMARY KEY', 'name': 'TEXT', 'age': 'INTEGER'}
+        """
+        columns_str = ', '.join([f'{name} {data_type}' for name, data_type in columns.items()])
+        create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_str}, PRIMARY KEY ({primary_key_1}, {primary_key_2}))"
+        self.cursor.execute(create_table_query)
+        self.conn.commit()
+
+    def create_table_with_foreign_key(self, table_name, columns, foreign_key, foreign_table):
+        """
+        Create a new table in the database.
+
+        Args:
+        - table_name: Name of the table to be created.
+        - columns: A dictionary where keys are column names and values are the data types.
+                Example: {'id': 'INTEGER PRIMARY KEY', 'name': 'TEXT', 'age': 'INTEGER'}
+        """
+        columns_str = ', '.join([f'{name} {data_type}' for name, data_type in columns.items()])
+        create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_str}, FOREIGN KEY ({foreign_key}) REFERENCES {foreign_table}({foreign_key}))"
+        self.cursor.execute(create_table_query)
+        self.conn.commit()
+
     def insert_record(self, table_name, record):
         """
         Insert a new record into the specified table.
@@ -88,25 +116,43 @@ class SQLiteDatabase:
         self.conn.commit()
         return result
 
+    def view_table_structure(self):
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = self.cursor.fetchall()
+
+        for table in tables:
+            table_name = table[0]
+            print(f"Table: {table_name}")
+            print("----------")
+            
+            self.cursor.execute(f"PRAGMA table_info({table_name});")
+            columns = self.cursor.fetchall()
+            
+            for column in columns:
+                print(f"{column[1]} | {column[2]}")
+            print()
+
     def close_connection(self):
         """Close the database connection."""
         self.conn.close()
 
-# Example usage:
-if __name__ == "__main__":
-    # db_path = os.path.join(os.getcwd(), 'classifier.db')
-    db = SQLiteDatabase()
+# # Example usage:
+# if __name__ == "__main__":
+#     # db_path = os.path.join(os.getcwd(), 'classifier.db')
+#     db = SQLiteDatabase()
 
-    db.create_table('models', {'model_id': 'TEXT PRIMARY KEY', 'accuracy': 'REAL', 'f1_score': 'REAL'})
+#     db.create_table_with_foreign_key('model_info', {'model_id': 'TEXT PRIMARY KEY', 'accuracy': 'REAL', 'f1_score': 'REAL', 'dataset_id' : 'TEXT'}, 'dataset_id', 'dataset_info')
+#     db.create_table_with_composite_key('dataset_info', {'dataset_id': 'TEXT', 'data_id': 'TEXT', 'data': 'TEXT', 'label': 'TEXT'}, 'dataset_id', 'data_id')
+#     db.view_table_structure()
 
-    # db.insert_record('models', {'model_id': 'John Doe', 'accuracy': 30.253, 'f1_score': 45.225})
-    # db.insert_record('users', {'name': 'Jane Smith', 'age': 25})
+#     # db.insert_record('models', {'model_id': 'John Doe', 'accuracy': 30.253, 'f1_score': 45.225})
+#     # db.insert_record('users', {'name': 'Jane Smith', 'age': 25})
 
-    # db.update_record('users', 1, {'name': 'John Updated', 'age': 35})
+#     # db.update_record('users', 1, {'name': 'John Updated', 'age': 35})
 
-    # db.delete_record('users', 2)
+#     # db.delete_record('users', 2)
 
-    result = db.execute_query("SELECT * FROM models")
-    print(result)
+#     # result = db.execute_query("SELECT * FROM models")
+#     # print(result)
 
-    db.close_connection()
+#     db.close_connection()
