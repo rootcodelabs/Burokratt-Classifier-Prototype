@@ -6,10 +6,12 @@ from database.database_connection import SQLiteDatabase
 
 class DataImporter:
     def __init__(self):
-        self.db = SQLiteDatabase()
+        # self.db = SQLiteDatabase()
+        pass
 
-    def import_data_from_file(self, file_location):
+    def import_data_from_file(self, dataset_name, file_location):
         try:
+
             data, file_type = self._load_data(file_location)
             print("####")
             print(data)
@@ -21,18 +23,24 @@ class DataImporter:
                 if file_type == "json" and type(data)==dict:
                     print("in")
                     data_point_count = 0
-                    for label, values in data.items():
+                    for class_name, values in data.items():
                         for string_value in values:
                             record = {
                                 'dataset_id': str(dataset_id),
                                 'data_id': str(data_point_count),
                                 'data': str(string_value),
-                                'label': str(label)
+                                'class_name': str(class_name).upper()
                             }
                             data_point_count += 1
                             print(record)
-                            print("=====")
-                            self.db.insert_record('dataset_info', record)
+                            print("=====") 
+                            SQLiteDatabase().insert_record('data_info', record)
+                            query = f"""INSERT OR IGNORE INTO class_info (class_name) VALUES ('{str(class_name).upper()}')"""
+                            SQLiteDatabase().execute_query(query)
+
+                            query = f"""INSERT OR IGNORE INTO class_dataset_info (class_name, dataset_id) VALUES ('{str(class_name).upper()}','{str(dataset_id)}')"""
+                            SQLiteDatabase().execute_query(query)
+                    SQLiteDatabase().insert_record('dataset_info', {'dataset_id': str(dataset_id),'dataset_name':str(dataset_name)})
                 else:
                     for idx, datum in enumerate(data):
                         print(datum)
@@ -40,11 +48,12 @@ class DataImporter:
                             'dataset_id': str(dataset_id),
                             'data_id': str(idx),
                             'data': str(datum),
-                            'label': ''
+                            'class_name': ''
                         }
                         print(record)
                         print("=====")
-                        self.db.insert_record('dataset_info', record)
+                        SQLiteDatabase().insert_record('data_info', record)
+                    SQLiteDatabase().insert_record('dataset_info', {'dataset_id': str(dataset_id),'dataset_name':str(dataset_name)})
             return True
         except Exception as e:
             self.handle_error('_load_data', e)
