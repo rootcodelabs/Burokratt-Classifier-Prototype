@@ -10,14 +10,29 @@ class CoreClassifierTrain:
     def __init__(self):
         pass
 
-    def train_and_evaluate(self, dataset_id, model_id, selected_models=['bert', 'albert', 'xlnet']):
-        db = SQLiteDatabase()
+    def get_dataset(self,class_name_list):
+        dataset = {}
+        for class_name in class_name_list:
+            query = f"""SELECT data, class_name FROM data_info WHERE class_name = '{class_name.upper()}'"""
+            result = SQLiteDatabase().execute_query(query)
+            for row in result:
+                data, class_name = row
+                if class_name in dataset:
+                    dataset[class_name].append(data)
+                else:
+                    dataset[class_name] = [data]
+        return dataset
 
+    def train_and_evaluate(self, class_name_list, selected_models=['bert', 'albert', 'xlnet'], datamodel_id = f'{str(int(time.time()))}'):
+        # db = SQLiteDatabase()
+        # {label : [examples,fsdfa]}
         try:
-            is_labeled, data = self.check_dataset_labels(db, dataset_id)
-            if is_labeled is False:
-                return False, data
-            elif is_labeled is True:
+            data = self.get_dataset(class_name_list)
+            # is_labeled, data = self.check_dataset_labels(dataset_id)
+            # if is_labeled is False:
+            #     return False, data
+            # elif is_labeled is True:
+            if data:
                 X = []
                 y = []
                 for label, examples in data.items():
@@ -29,17 +44,19 @@ class CoreClassifierTrain:
                 for model_name in selected_models:
                     model = None
                     if model_name == 'bert':
-                        model = BERTTrainer(f"{model_id}_{model_name}")
+                        model = BERTTrainer(f"{datamodel_id}_{model_name}")
                     elif model_name == 'albert':
-                        model = ALBERTTrainer(f"{model_id}_{model_name}")
+                        model = ALBERTTrainer(f"{datamodel_id}_{model_name}")
                     elif model_name == 'xlnet':
-                        model = XLNetTrainer(f"{model_id}_{model_name}")
+                        model = XLNetTrainer(f"{datamodel_id}_{model_name}")
 
                     if model:
-                        accuracy, f1_score = model.train(X_train, y_train, X_test, y_test)
+                        accuracy, f1_score, class_report = model.train(X_train, y_train, X_test, y_test)
                         print(f"{model_name.capitalize()} Accuracy:", accuracy)
                         print(f"{model_name.capitalize()} F1 Score:", f1_score)
-                        db.insert_record('model_info', {'model_id': f'{model_id}_{model_name}', 'accuracy': accuracy, 'f1_score': f1_score, 'dataset_id': dataset_id})
+                        print(f"{model_name.capitalize()} class_report:", class_report)
+                        print(f"{model_name.capitalize()} class_report type:", type(class_report))
+                        SQLiteDatabase().insert_record('model_info', {'datamodel_id': f'{datamodel_id}_{model_name}', 'accuracy': accuracy, 'f1_score': f1_score})
 
                 return True, []
             else:
@@ -47,12 +64,12 @@ class CoreClassifierTrain:
         except Exception as e:
             return False, f"Error occurred: {str(e)}"
         finally:
-            db.close_connection()
+            SQLiteDatabase().close_connection()
 
-    def check_dataset_labels(self, db, dataset_id):
+    def check_dataset_labels(self, dataset_id):
         try:
             query = f"SELECT data_id, data, label FROM dataset_info WHERE dataset_id = '{dataset_id}'"
-            dataset_data = db.execute_query(query)
+            dataset_data = SQLiteDatabase().execute_query(query)
             
             missing_labels = []
             data_with_labels = {}
@@ -86,10 +103,10 @@ class CoreClassifierTrain:
 #         data = json.load(f)
 
 #     # Sample model location
-#     model_id = f'{str(int(time.time()))}'
+#     datamodel_id = f'{str(int(time.time()))}'
 
 #     # Create an instance of CoreClassifierTrain
 #     classifier = CoreClassifierTrain()
 
 #     # Train and evaluate the classifier
-#     classifier.train_and_evaluate(data, model_id)
+#     classifier.train_and_evaluate(data, datamodel_id)
