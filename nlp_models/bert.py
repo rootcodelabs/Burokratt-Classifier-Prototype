@@ -1,12 +1,13 @@
 from transformers import BertTokenizer, BertForSequenceClassification
 from sklearn.metrics import accuracy_score, f1_score
 import torch
+from sklearn.metrics import classification_report
 
 class BERTTrainer:
-    def __init__(self, model_id):
+    def __init__(self, datamodel_id):
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
         self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=3)
-        self.model_path = f'nlp_models/{model_id}/'
+        self.model_path = f'nlp_models/{datamodel_id}/'
 
     def train(self, X_train, y_train, X_test, y_test):
         train_encodings = self.tokenizer(X_train, truncation=True, padding=True)
@@ -29,7 +30,7 @@ class BERTTrainer:
         criterion = torch.nn.CrossEntropyLoss()
 
         self.model.train()
-        for epoch in range(3):  # 3 epochs
+        for epoch in range(1):  # 1 epoch
             for batch in train_loader:
                 input_ids, attention_mask, labels = batch
                 optimizer.zero_grad()
@@ -51,14 +52,17 @@ class BERTTrainer:
         accuracy = accuracy_score(y_test, y_pred)
         f1 = f1_score(y_test, y_pred, average='weighted')
 
+        # Compute classification report
+        class_report = classification_report(y_test, y_pred)
+
         self.model.save_pretrained(self.model_path)
 
-        return accuracy, f1
+        return accuracy, f1, class_report
 
 class BERTClassifier:
-    def __init__(self, model_id):
+    def __init__(self, datamodel_id):
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-        self.model_path = f'nlp_models/{model_id}/'
+        self.model_path = f'nlp_models/{datamodel_id}/'
 
     def classify_text(self, text):
         loaded_model = BertForSequenceClassification.from_pretrained(self.model_path)

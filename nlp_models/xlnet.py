@@ -3,6 +3,7 @@ from transformers import XLNetTokenizer, XLNetForSequenceClassification
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import classification_report
 
 class CustomDataset(Dataset):
     def __init__(self, X, y, tokenizer, max_len):
@@ -35,12 +36,13 @@ class CustomDataset(Dataset):
         }
 
 class XLNetTrainer:
-    def __init__(self, model_id):
-        self.model_path = f'nlp_models/{model_id}/'
+    def __init__(self, datamodel_id):
+        self.model_path = f'nlp_models/{datamodel_id}/'
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
         self.model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=1)
 
-    def train(self, train_loader, test_loader, num_epochs=3, learning_rate=2e-5):
+    #Epoch here
+    def train(self, train_loader, test_loader, num_epochs=1, learning_rate=2e-5):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
 
@@ -87,7 +89,11 @@ class XLNetTrainer:
         f1 = f1_score(true_labels, predictions, average='weighted')
 
         print(f"Accuracy: {accuracy}, F1 Score: {f1}")
-        return accuracy, f1
+
+        class_report = classification_report(true_labels, predictions)
+        print(class_report)
+
+        return accuracy, f1, class_report
 
 class XLNetClassifier:
     def __init__(self, model_path):
