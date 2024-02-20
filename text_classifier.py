@@ -6,22 +6,22 @@ class TextClassifier:
     def __init__(self):
         pass
 
-    def classify_text(self, model_id, text):
-        if not model_id:
-            raise ValueError("Missing model_id")
+    def classify_text(self, datamodel_id, text):
+        if not datamodel_id:
+            raise ValueError("Missing datamodel_id")
         if not text:
             raise ValueError("Missing text")
 
-        self.model_id = model_id
-        self.base_model = model_id.split('_')[-1]
+        self.datamodel_id = datamodel_id
+        self.base_model = datamodel_id.split('_')[-1]
         
         try:
             if self.base_model == 'bert':
-                classifier = BERTClassifier(self.model_id)
+                classifier = BERTClassifier(self.datamodel_id)
             elif self.base_model == 'albert':
-                classifier = ALBERTClassifier(self.model_id)
+                classifier = ALBERTClassifier(self.datamodel_id)
             elif self.base_model == 'xlnet':
-                classifier = XLNetClassifier(self.model_id)
+                classifier = XLNetClassifier(self.datamodel_id)
             else:
                 raise ValueError("Unsupported base model")
             
@@ -29,7 +29,7 @@ class TextClassifier:
             return prediction
         
         except FileNotFoundError:
-            raise FileNotFoundError(f"Model files not found for model_id: {self.model_id}")
+            raise FileNotFoundError(f"Model files not found for datamodel_id: {self.datamodel_id}")
         
         except Exception as e:
             raise RuntimeError(f"Error while classifying text: {str(e)}")
