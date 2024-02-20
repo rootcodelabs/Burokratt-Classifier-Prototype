@@ -1,13 +1,33 @@
 Table: model_info
 ----------
-model_id | TEXT (PRIMARY KEY)
+datamodel_id | TEXT
 accuracy | REAL
 f1_score | REAL
-dataset_id | TEXT (FOREIGN KEY)
+
+Table: model_class_info
+----------
+datamodel_id | TEXT
+class_name | TEXT
+accuracy | REAL
+f1_score | REAL
 
 Table: dataset_info
 ----------
-dataset_id | TEXT (PRIMARY COMPOSITE KEY)
-data_id | TEXT (PRIMARY COMPOSITE KEY)
+dataset_id | TEXT
+dataset_name | TEXT
+
+Table: data_info
+----------
+dataset_id | TEXT
+data_id | TEXT
 data | TEXT
-label | TEXT
+class_name | TEXT
+
+Table: class_info
+----------
+class_name | TEXT
+
+Table: class_dataset_info
+----------
+class_name | TEXT
+dataset_id | TEXT
