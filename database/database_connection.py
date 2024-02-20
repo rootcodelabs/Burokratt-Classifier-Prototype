@@ -3,7 +3,7 @@ import os
 
 class SQLiteDatabase:
     def __init__(self):
-        self.db_path = 'classifier.db'
+        self.db_path = 'database/classifier.db'
         self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor()
 
@@ -132,20 +132,54 @@ class SQLiteDatabase:
                 print(f"{column[1]} | {column[2]}")
             print()
 
+    def get_class_info_table_data(self):
+        """
+        View data from the specified table.
+
+        Args:
+        - table_name: Name of the table.
+        """
+        select_query = f"SELECT * FROM class_info"
+        self.cursor.execute(select_query)
+        table_data = self.cursor.fetchall()
+
+        data = []
+
+        for row in table_data:
+            data.append(row[0])
+
+        return data
+
+    def view_table_data(self, table_name):
+        """
+        View data from the specified table.
+
+        Args:
+        - table_name: Name of the table.
+        """
+        select_query = f"SELECT * FROM {table_name}"
+        self.cursor.execute(select_query)
+        table_data = self.cursor.fetchall()
+
+        print(f"Data from table: {table_name}")
+        print("----------")
+        for row in table_data:
+            print(row)
+
     def close_connection(self):
         """Close the database connection."""
         self.conn.close()
 
 # # Example usage:
-# if __name__ == "__main__":
-#     # db_path = os.path.join(os.getcwd(), 'classifier.db')
-#     db = SQLiteDatabase()
+if __name__ == "__main__":
+    # db_path = os.path.join(os.getcwd(), 'classifier.db')
+    db = SQLiteDatabase()
 
-#     db.create_table_with_foreign_key('model_info', {'model_id': 'TEXT PRIMARY KEY', 'accuracy': 'REAL', 'f1_score': 'REAL', 'dataset_id' : 'TEXT'}, 'dataset_id', 'dataset_info')
+#     db.create_table_with_foreign_key('model_info', {'datamodel_id': 'TEXT PRIMARY KEY', 'accuracy': 'REAL', 'f1_score': 'REAL', 'dataset_id' : 'TEXT'}, 'dataset_id', 'dataset_info')
 #     db.create_table_with_composite_key('dataset_info', {'dataset_id': 'TEXT', 'data_id': 'TEXT', 'data': 'TEXT', 'label': 'TEXT'}, 'dataset_id', 'data_id')
 #     db.view_table_structure()
 
-#     # db.insert_record('models', {'model_id': 'John Doe', 'accuracy': 30.253, 'f1_score': 45.225})
+#     # db.insert_record('models', {'datamodel_id': 'John Doe', 'accuracy': 30.253, 'f1_score': 45.225})
 #     # db.insert_record('users', {'name': 'Jane Smith', 'age': 25})
 
 #     # db.update_record('users', 1, {'name': 'John Updated', 'age': 35})
@@ -155,4 +189,6 @@ class SQLiteDatabase:
 #     # result = db.execute_query("SELECT * FROM models")
 #     # print(result)
 
-#     db.close_connection()
+    db.view_table_data('class_info')
+    db.view_table_data('class_dataset_info')
+    db.close_connection()
