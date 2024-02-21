@@ -15,54 +15,71 @@ class BERTTrainer:
             print("#####")
 
     def train(self, X_train, y_train, X_test, y_test):
-        train_encodings = self.tokenizer(X_train, truncation=True, padding=True)
-        test_encodings = self.tokenizer(X_test, truncation=True, padding=True)
+        try:
+            print("!1")
+            train_encodings = self.tokenizer(X_train, truncation=True, padding=True)
+            print("!1")
+            test_encodings = self.tokenizer(X_test, truncation=True, padding=True)
+            print("!1")
 
-        train_labels = torch.tensor(y_train)
-        test_labels = torch.tensor(y_test)
+            train_labels = torch.tensor(y_train)
+            print("!1")
+            test_labels = torch.tensor(y_test)
+            print("!1")
 
-        train_dataset = torch.utils.data.TensorDataset(torch.tensor(train_encodings['input_ids']),
-                                                       torch.tensor(train_encodings['attention_mask']),
-                                                       train_labels)
-        test_dataset = torch.utils.data.TensorDataset(torch.tensor(test_encodings['input_ids']),
-                                                      torch.tensor(test_encodings['attention_mask']),
-                                                      test_labels)
+            train_dataset = torch.utils.data.TensorDataset(torch.tensor(train_encodings['input_ids']),
+                                                        torch.tensor(train_encodings['attention_mask']),
+                                                        train_labels)
+            print("!1")
+            test_dataset = torch.utils.data.TensorDataset(torch.tensor(test_encodings['input_ids']),
+                                                        torch.tensor(test_encodings['attention_mask']),
+                                                        test_labels)
+            print("!1")
 
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=8, shuffle=True)
-        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=8, shuffle=False)
+            train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=8, shuffle=True)
+            print("!1")
+            test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=8, shuffle=False)
+            print("!1")
 
-        optimizer = torch.optim.AdamW(self.model.parameters(), lr=5e-5)
-        criterion = torch.nn.CrossEntropyLoss()
+            optimizer = torch.optim.AdamW(self.model.parameters(), lr=5e-5)
+            print("!1")
+            criterion = torch.nn.CrossEntropyLoss()
+            print("!1")
 
-        self.model.train()
-        for epoch in range(1):  # 1 epoch
-            for batch in train_loader:
-                input_ids, attention_mask, labels = batch
-                optimizer.zero_grad()
-                outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
-                loss = outputs.loss
-                loss.backward()
-                optimizer.step()
+            self.model.train()
+            print("!1")
+            for epoch in range(1):  # 1 epoch
+                for batch in train_loader:
+                    input_ids, attention_mask, labels = batch
+                    optimizer.zero_grad()
+                    outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
+                    loss = outputs.loss
+                    loss.backward()
+                    optimizer.step()
 
-        self.model.eval()
-        y_pred = []
-        with torch.no_grad():
-            for batch in test_loader:
-                input_ids, attention_mask, labels = batch
-                outputs = self.model(input_ids, attention_mask=attention_mask)
-                logits = outputs.logits
-                _, predicted = torch.max(logits, 1)
-                y_pred.extend(predicted.tolist())
+            self.model.eval()
+            y_pred = []
+            with torch.no_grad():
+                for batch in test_loader:
+                    input_ids, attention_mask, labels = batch
+                    outputs = self.model(input_ids, attention_mask=attention_mask)
+                    logits = outputs.logits
+                    _, predicted = torch.max(logits, 1)
+                    y_pred.extend(predicted.tolist())
 
-        accuracy = accuracy_score(y_test, y_pred)
-        f1 = f1_score(y_test, y_pred, average='weighted')
+            accuracy = accuracy_score(y_test, y_pred)
+            f1 = f1_score(y_test, y_pred, average='weighted')
 
-        # Compute classification report
-        class_report = classification_report(y_test, y_pred)
+            # Compute classification report
+            class_report = classification_report(y_test, y_pred)
 
-        self.model.save_pretrained(self.model_path)
+            self.model.save_pretrained(self.model_path)
 
-        return accuracy, f1, class_report
+            return accuracy, f1, class_report
+        except Exception as e:
+            print("Error in bert train")
+            print(e)
+            print("############")
 
 class BERTClassifier:
     def __init__(self, datamodel_id):
