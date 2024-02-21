@@ -61,6 +61,11 @@ class SQLiteDatabase:
         columns = ', '.join(record.keys())
         placeholders = ', '.join(['?' for _ in record.keys()])
         insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+
+        print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+        print(f"Insert Query {insert_query}")
+        print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+
         self.cursor.execute(insert_query, list(record.values()))
         self.conn.commit()
 
