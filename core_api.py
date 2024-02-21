@@ -6,14 +6,14 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from database.database_connection import SQLiteDatabase
 from data_processor import DataImporter 
-from text_classifier import TextClassifier
-from core_classifier import CoreClassifierTrain
+# from text_classifier import TextClassifier
+# from core_classifier import CoreClassifierTrain
 
 app = FastAPI()
 # db = SQLiteDatabase()
 data_importer = DataImporter()
-text_classifier = TextClassifier()
-core_classifier_trainer = CoreClassifierTrain()
+# text_classifier = TextClassifier()
+# core_classifier_trainer = CoreClassifierTrain()
 
 class LabelInput(BaseModel):
     dataset_id: str
@@ -322,29 +322,29 @@ def delete_model_info(datamodel_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/train_and_evaluate/")
-def train_and_evaluate(data: TrainAndEvaluateInput):
-    try:
-        success, message = core_classifier_trainer.train_and_evaluate(data.class_name_list, data.selected_models)
-        if success is True:
-            return {"message": "Training and evaluation completed successfully", "details": message}
-        elif success is False:
-            return {"message": "Error occurred during training and evaluation", "details": message}
-        else:
-            raise HTTPException(status_code=400, detail=message)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# @app.post("/train_and_evaluate/")
+# def train_and_evaluate(data: TrainAndEvaluateInput):
+#     try:
+#         success, message = core_classifier_trainer.train_and_evaluate(data.class_name_list, data.selected_models)
+#         if success is True:
+#             return {"message": "Training and evaluation completed successfully", "details": message}
+#         elif success is False:
+#             return {"message": "Error occurred during training and evaluation", "details": message}
+#         else:
+#             raise HTTPException(status_code=400, detail=message)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
-# API endpoint to classify text using a specified model
-@app.post("/classify_text/")
-def classify_text(datamodel_id: str, text: str):
-    try:
-        result = text_classifier.classify_text(datamodel_id, text)
-        return {"classification_result": result}
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# # API endpoint to classify text using a specified model
+# @app.post("/classify_text/")
+# def classify_text(datamodel_id: str, text: str):
+#     try:
+#         result = text_classifier.classify_text(datamodel_id, text)
+#         return {"classification_result": result}
+#     except ValueError as ve:
+#         raise HTTPException(status_code=400, detail=str(ve))
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
