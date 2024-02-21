@@ -59,31 +59,54 @@ class BERTTrainer:
             self.model.train()
             print("!1")
             for epoch in range(1):  # 1 epoch
+                print("!2")
                 for batch in train_loader:
+                    print("!3")
                     input_ids, attention_mask, labels = batch
+                    print("!3")
                     optimizer.zero_grad()
+                    print("!3")
                     outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
+                    print("!3")
                     loss = outputs.loss
+                    print("!3")
                     loss.backward()
+                    print("!3")
                     optimizer.step()
+                    print("!3")
 
+            
+            print("!4")
             self.model.eval()
+            print("!4")
             y_pred = []
             with torch.no_grad():
+                print("!5")
                 for batch in test_loader:
+                    print("!6")
                     input_ids, attention_mask, labels = batch
+                    print("!6")
                     outputs = self.model(input_ids, attention_mask=attention_mask)
+                    print("!6")
                     logits = outputs.logits
+                    print("!6")
                     _, predicted = torch.max(logits, 1)
+                    print("!6")
                     y_pred.extend(predicted.tolist())
-
+                    print("!6")
+                    
+            print("!7")
             accuracy = accuracy_score(y_test, y_pred)
+            print("!7")
             f1 = f1_score(y_test, y_pred, average='weighted')
+            print("!7")
 
             # Compute classification report
             class_report = classification_report(y_test, y_pred)
+            print("!7")
 
             self.model.save_pretrained(self.model_path)
+            print("!7")
 
             return accuracy, f1, class_report
         except Exception as e:
