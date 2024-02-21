@@ -9,7 +9,8 @@ Table: model_class_info
 datamodel_id | TEXT
 class_name | TEXT
 class_label | INTEGER
-accuracy | REAL
+precision | REAL
+recall | REAL
 f1_score | REAL
 
 Table: dataset_info
