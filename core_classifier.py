@@ -63,6 +63,13 @@ class CoreClassifierTrain:
                                     'precision': class_report_dict[str(class_label)]['precision'],
                                     'recall': class_report_dict[str(class_label)]['recall'],
                                     'f1_score': class_report_dict[str(class_label)]['f1-score']})
+                            print("*************************")
+                            print({'datamodel_id': f'{datamodel_id}_{model_name}', 
+                                    'class_name': class_name_str, 'class_label': class_label, 
+                                    'precision': class_report_dict[str(class_label)]['precision'],
+                                    'recall': class_report_dict[str(class_label)]['recall'],
+                                    'f1_score': class_report_dict[str(class_label)]['f1-score']})
+                            print("*************************")
                         print("5")
                         print(f"{model_name.capitalize()} Accuracy:", accuracy)
                         print(f"{model_name.capitalize()} F1 Score:", f1_score)
