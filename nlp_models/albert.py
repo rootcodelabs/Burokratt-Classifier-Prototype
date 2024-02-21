@@ -44,18 +44,19 @@ class ALBERTTrainer:
             training_args = TrainingArguments(
                 per_device_train_batch_size=8,
                 per_device_eval_batch_size=8,
-                evaluation_strategy='epoch',
+                evaluation_strategy='steps',  # Change evaluation strategy
                 logging_dir='./logs',
                 output_dir='./results',
                 num_train_epochs=1,
                 logging_steps=100,
-                save_steps=500,  # Change save strategy to epoch-level
+                save_steps=1000,
                 warmup_steps=500,
                 weight_decay=0.01,
                 logging_first_step=True,
                 load_best_model_at_end=True,
                 metric_for_best_model='accuracy'
             )
+
 
             trainer = Trainer(
                 model=self.model,
