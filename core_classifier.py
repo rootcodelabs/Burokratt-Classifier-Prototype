@@ -56,6 +56,7 @@ class CoreClassifierTrain:
                     if model:
                         print("4")
                         accuracy, f1_score, class_report_dict, label_encoder_dict = model.train(X_train, y_train, X_test, y_test)
+                        print(f'Label Encoder dict : \n {label_encoder_dict}')
                         for class_name_str, class_label in label_encoder_dict:
                             result = SQLiteDatabase().insert_record('model_class_info', 
                                     {'datamodel_id': f'{datamodel_id}_{model_name}', 
