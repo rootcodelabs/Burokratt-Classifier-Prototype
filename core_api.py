@@ -55,6 +55,7 @@ class ModelInfo(BaseModel):
     dataset_id: str  
 
 class TrainAndEvaluateInput(BaseModel):
+    model_name: str
     class_name_list: List[str]
     selected_models: Optional[List[str]] = ['bert', 'albert', 'xlnet']
 
@@ -275,7 +276,7 @@ def import_data(dataset_name: str = Form(...), file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Endpoint to import data from file to given class : 
-@app.post("class/datasets/import/")
+@app.post("/class/datasets/import/")
 def import_data(dataset_name: str = Form(...), class_name: str = Form(...), file: UploadFile = File(...)):
     try:
         UPLOAD_DIRECTORY = "uploaded_files"
@@ -386,7 +387,7 @@ def class_data(new_data:NewData):
 @app.get("/model_info/")
 def get_model_info():
     try:
-        query = "SELECT datamodel_id, accuracy, f1_score FROM model_info"
+        query = "SELECT datamodel_id, datamodel_name, accuracy, f1_score FROM model_info"
         model_info_records = SQLiteDatabase().execute_query(query)
 
         query = "SELECT * FROM model_class_info"
@@ -395,11 +396,9 @@ def get_model_info():
         print(f"model_info_records : \n {model_info_records}")
         print(f"model_class_info_records : \n {model_class_info_records}")
 
-        model_info_list = []
-        for record in model_info_records:
-            model_info_list.append(ModelInfo(datamodel_id=record[0], accuracy=record[1], f1_score=record[2], dataset_id=record[3]))
-
-        return model_info_list
+        model_info = []
+        for model in model_info_records:
+            pass
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -431,7 +430,7 @@ def delete_model_info(datamodel_id: str):
 # @app.post("/train_and_evaluate/")
 # def train_and_evaluate(data: TrainAndEvaluateInput):
 #     try:
-#         success, message = core_classifier_trainer.train_and_evaluate(data.class_name_list, data.selected_models)
+#         success, message = core_classifier_trainer.train_and_evaluate(data.model_name, data.class_name_list, data.selected_models)
 #         if success is True:
 #             return {"message": "Training and evaluation completed successfully", "details": message}
 #         elif success is False:
