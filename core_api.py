@@ -15,10 +15,13 @@ data_importer = DataImporter()
 # text_classifier = TextClassifier()
 # core_classifier_trainer = CoreClassifierTrain()
 
+class DataClass(BaseModel):
+    data_id: str
+    label: str
+
 class LabelInput(BaseModel):
     dataset_id: str
-    data_id: str
-    class_name: str
+    changed_data : List[DataClass]
 
 class FileLocationInput(BaseModel):
     file_location: str
@@ -90,17 +93,20 @@ def get_single_dataset(dataset_id: str):
 @app.post("/data/class_name/")
 def add_label(label_input: LabelInput):
     try:
-        class_name = str(label_input.class_name).upper()
-        print(class_name)
+        for entry in label_input.changed_data:
+            class_name = str(entry.label).upper()
+            data_id = str(entry.data_id)
+        # class_name = str(label_input.class_name).upper()
+        # print(class_name)
 
-        query = f"UPDATE data_info SET class_name = '{class_name}' WHERE dataset_id = '{label_input.dataset_id}' AND data_id = '{label_input.data_id}'"
-        SQLiteDatabase().execute_query(query)
+            query = f"UPDATE data_info SET class_name = '{class_name}' WHERE dataset_id = '{label_input.dataset_id}' AND data_id = '{data_id}'"
+            SQLiteDatabase().execute_query(query)
 
-        query = f"""INSERT OR IGNORE INTO class_info (class_name) VALUES ('{class_name}')"""
-        SQLiteDatabase().execute_query(query)
+            query = f"""INSERT OR IGNORE INTO class_info (class_name) VALUES ('{class_name}')"""
+            SQLiteDatabase().execute_query(query)
 
-        query = f"""INSERT OR IGNORE INTO class_dataset_info (class_name, dataset_id) VALUES ('{class_name}','{label_input.dataset_id}')"""
-        SQLiteDatabase().execute_query(query)
+            query = f"""INSERT OR IGNORE INTO class_dataset_info (class_name, dataset_id) VALUES ('{class_name}','{label_input.dataset_id}')"""
+            SQLiteDatabase().execute_query(query)
 
         return {"message": "class_name added successfully"}
     except Exception as e:
@@ -138,6 +144,27 @@ def get_class_info():
 
         result = [{'class_name': class_name, 'datasets': class_data[class_name]} for class_name in class_data]
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Endpoint to retrieve information about a single dataset and the classes that it can have : TESTED
+@app.get("/datasets/class/{dataset_id}/")
+def get_single_dataset(dataset_id: str):
+    try:
+        query = f"SELECT data_id, data, class_name FROM data_info WHERE dataset_id = '{dataset_id}'"
+        result = SQLiteDatabase().execute_query(query)
+        if not result:
+            raise HTTPException(status_code=404, detail="Dataset not found")
+        dataset_info = [{"data_id": row[0], "data": row[1], "class_name": row[2]} for row in result]
+
+        query = f"""SELECT class_name FROM class_dataset_info WHERE dataset_id = '{dataset_id}'"""
+        result = SQLiteDatabase().execute_query(query)
+
+        class_names = []
+        for class_name in result:
+            class_names.append(class_name[0])
+
+        return {"labels": class_names, "data": dataset_info}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
