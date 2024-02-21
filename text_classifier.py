@@ -37,7 +37,7 @@ class TextClassifier:
                 print("@@@")
                 print(model_class)
                 print("@@@")
-                class_label_name_dict[model_class[2]] = model_class[1]
+                class_label_name_dict[model_class[1]] = model_class[0]
 
             return class_label_name_dict[int(prediction)]
         
