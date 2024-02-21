@@ -8,7 +8,6 @@ from sklearn.preprocessing import LabelEncoder
 class BERTTrainer:
     def __init__(self, datamodel_id):
         try:
-            self.converter = StringConverter()
             self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
             self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=3)
             self.model_path = f'nlp_models/{datamodel_id}/'
@@ -114,6 +113,7 @@ class BERTTrainer:
 
             parser = ClassificationReportParser(class_report)
 
+            # Parse the report
             class_report_dict = parser.parse_report()
 
             return accuracy, f1, class_report_dict, label_encoder_dict
