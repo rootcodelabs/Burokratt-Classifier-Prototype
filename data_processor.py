@@ -61,7 +61,8 @@ class DataImporter:
                             # print(record)
                             # print("=====")
                             SQLiteDatabase().insert_record('data_info', record)
-
+                            query = f"""INSERT OR IGNORE INTO class_info (class_name) VALUES ('{str(upload_class_name).upper()}')"""
+                            SQLiteDatabase().execute_query(query)
                             query = f"""INSERT OR IGNORE INTO class_dataset_info (class_name, dataset_id) VALUES ('{str(upload_class_name).upper()}','{str(dataset_id)}')"""
                             SQLiteDatabase().execute_query(query)
                     else:
