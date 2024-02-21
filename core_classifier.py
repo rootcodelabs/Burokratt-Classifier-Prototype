@@ -54,6 +54,7 @@ class CoreClassifierTrain:
                         model = BERTTrainer(f"{datamodel_id}_{model_name}")
                     elif model_name == 'albert':
                         print("in albert")
+                        print(f"{datamodel_id}_{model_name}")
                         model = ALBERTTrainer(f"{datamodel_id}_{model_name}")
                     elif model_name == 'xlnet':
                         print("in xlnet")

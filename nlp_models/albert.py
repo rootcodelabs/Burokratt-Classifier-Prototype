@@ -6,10 +6,19 @@ from sklearn.metrics import classification_report
 
 class ALBERTTrainer:
     def __init__(self, datamodel_id):
-        self.model_path = f'nlp_models/{datamodel_id}/'
-        self.model = None
-        self.tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
-        self.label_encoder = LabelEncoder()
+        try:
+            print("!1")
+            self.model_path = f'nlp_models/{datamodel_id}/'
+            print("!1")
+            self.model = None
+            print("!1")
+            self.tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
+            print("!1")
+            self.label_encoder = LabelEncoder()
+            print("!1")
+        except Exception as e:
+            print("Error in albert")
+            print(e)
 
     def _preprocess_data(self, X, y):
         encoded_labels = self.label_encoder.fit_transform(y)
