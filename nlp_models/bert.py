@@ -5,9 +5,14 @@ from sklearn.metrics import classification_report
 
 class BERTTrainer:
     def __init__(self, datamodel_id):
-        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-        self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=3)
-        self.model_path = f'nlp_models/{datamodel_id}/'
+        try:
+            self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+            self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=3)
+            self.model_path = f'nlp_models/{datamodel_id}/'
+        except Exception as e:
+            print("Error at BERT Base class")
+            print(e)
+            print("#####")
 
     def train(self, X_train, y_train, X_test, y_test):
         train_encodings = self.tokenizer(X_train, truncation=True, padding=True)
