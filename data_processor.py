@@ -11,19 +11,22 @@ class DataImporter:
 
     def import_data_from_file(self, dataset_name, file_location, upload_class_name = False):
         try:
-
+            print("$1")
             data, file_type = self._load_data(file_location)
-            print("####")
-            print(data)
-            print("####")
+            # print("####")
+            # print(data)
+            # print("####")
             if data:
+                print("$1")
                 dataset_id = int(time())
                 print(file_type)
                 print(type(data))
+                print("$1")
                 if file_type == "json" and type(data)==dict:
                     print("in")
                     data_point_count = 0
                     for class_name, values in data.items():
+                        print("$2")
                         for string_value in values:
                             record = {
                                 'dataset_id': str(dataset_id),
@@ -42,23 +45,29 @@ class DataImporter:
                             SQLiteDatabase().execute_query(query)
                     SQLiteDatabase().insert_record('dataset_info', {'dataset_id': str(dataset_id),'dataset_name':str(dataset_name)})
                 else:
+                    print("$3")
+                    print(upload_class_name)
                     if upload_class_name:
+                        print("$4")
                         for idx, datum in enumerate(data):
-                            print(datum)
+                            print("$5")
+                            # print(datum)
                             record = {
                                 'dataset_id': str(dataset_id),
                                 'data_id': str(idx),
                                 'data': str(datum),
-                                'class_name': upload_class_name
+                                'class_name': str(upload_class_name).upper()
                             }
-                            print(record)
-                            print("=====")
+                            # print(record)
+                            # print("=====")
                             SQLiteDatabase().insert_record('data_info', record)
 
-                            query = f"""INSERT OR IGNORE INTO class_dataset_info (class_name, dataset_id) VALUES ('{str(class_name).upper()}','{str(dataset_id)}')"""
+                            query = f"""INSERT OR IGNORE INTO class_dataset_info (class_name, dataset_id) VALUES ('{str(upload_class_name).upper()}','{str(dataset_id)}')"""
                             SQLiteDatabase().execute_query(query)
                     else:
+                        print("$6")
                         for idx, datum in enumerate(data):
+                            print("$7")
                             print(datum)
                             record = {
                                 'dataset_id': str(dataset_id),

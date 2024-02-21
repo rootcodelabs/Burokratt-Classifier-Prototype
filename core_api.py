@@ -71,6 +71,9 @@ class NewData(BaseModel):
     class_name: str
     data: List[str]
 
+class ClassNames(BaseModel):
+    class_name_list:List[str]
+
 # Endpoint to retrieve information about datasets : TESTED
 @app.get("/datasets/info/")
 def get_datasets_info():
@@ -330,9 +333,10 @@ def add_data(data_input: DataInput):
 
 # API endpoint to retrieve data for given class
 @app.post("/class/data/")
-def class_data(class_name_list:List[str]):
+def class_data(class_names : ClassNames):
+    
     dataset = {}
-    for class_name in class_name_list:
+    for class_name in class_names.class_name_list:
         query = f"""SELECT data, class_name FROM data_info WHERE class_name = '{class_name.upper()}'"""
         result = SQLiteDatabase().execute_query(query)
         for row in result:
@@ -346,9 +350,12 @@ def class_data(class_name_list:List[str]):
 # API endpoint to retrieve data for given class : TESTED
 @app.get("/class/data/{class_name}")
 def class_data(class_name:str):
+    print(class_name)
     data_list = []
     query = f"""SELECT data_id, data FROM data_info WHERE class_name = '{class_name.upper()}'"""
+    # query = f"""SELECT data_id, data, class_name FROM data_info"""
     result = SQLiteDatabase().execute_query(query)
+    print(result)
     for row in result:
         data_id, data = row
         data_list.append({'data_id':data_id, 'data':data})
