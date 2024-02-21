@@ -3,6 +3,7 @@ from sklearn.metrics import accuracy_score, f1_score
 import torch
 from sklearn.metrics import classification_report
 from numberical_embed import StringConverter
+from sklearn.preprocessing import LabelEncoder
 
 class BERTTrainer:
     def __init__(self, datamodel_id):
@@ -26,11 +27,14 @@ class BERTTrainer:
 
             y_train = []
             y_test = []
-            for example in y_train_str:
-                y_train.append(self.converter.string_to_integer(example))
+            label_encoder = LabelEncoder()
+            y_train = label_encoder.fit_transform(y_train_str)
+            y_test = label_encoder.fit_transform(y_test_str)
+            # for example in y_train_str:
+            #     y_train.append(self.converter.string_to_integer(example))
 
-            for example in y_test_str:
-                y_test.append(self.converter.string_to_integer(example))
+            # for example in y_test_str:
+            #     y_test.append(self.converter.string_to_integer(example))
 
             train_labels = torch.tensor(y_train)
             print("!1")
