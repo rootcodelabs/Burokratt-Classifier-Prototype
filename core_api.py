@@ -3,6 +3,7 @@ import shutil
 import os
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database.database_connection import SQLiteDatabase
 from data_processor import DataImporter 
@@ -14,6 +15,14 @@ app = FastAPI()
 data_importer = DataImporter()
 # text_classifier = TextClassifier()
 # core_classifier_trainer = CoreClassifierTrain()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+) 
 
 class DataClass(BaseModel):
     data_id: str
