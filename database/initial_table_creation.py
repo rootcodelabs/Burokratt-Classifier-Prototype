@@ -4,7 +4,7 @@ db = SQLiteDatabase()
 
 db.create_table('model_info', {'datamodel_id': 'TEXT PRIMARY KEY', 'accuracy': 'REAL', 'f1_score': 'REAL'})
 
-db.create_table_with_composite_key('model_class_info', {'datamodel_id': 'TEXT', 'class_name': 'TEXT', 'accuracy': 'REAL', 'f1_score': 'REAL'}, 'datamodel_id', 'class_name')
+db.create_table_with_composite_key('model_class_info', {'datamodel_id': 'TEXT', 'class_name': 'TEXT', 'class_label': 'INTEGER', 'precision': 'REAL', 'recall': 'REAL', 'f1_score': 'REAL'}, 'datamodel_id', 'class_name')
 
 db.create_table('dataset_info', {'dataset_id': 'TEXT PRIMARY KEY', 'dataset_name': 'TEXT'})
 

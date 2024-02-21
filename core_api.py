@@ -322,7 +322,9 @@ def class_data(class_name_list:List[str]):
 @app.get("/model_info/")
 def get_model_info():
     try:
-        query = "SELECT datamodel_id, accuracy, f1_score, dataset_id FROM model_info"
+        query = "SELECT datamodel_id, accuracy, f1_score FROM model_info"
+        model_info_records = SQLiteDatabase().execute_query(query)
+        query = "SELECT datamodel_id, accuracy, f1_score FROM model_info"
         model_info_records = SQLiteDatabase().execute_query(query)
 
         model_info_list = []

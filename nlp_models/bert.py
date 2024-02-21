@@ -2,7 +2,7 @@ from transformers import BertTokenizer, BertForSequenceClassification
 from sklearn.metrics import accuracy_score, f1_score
 import torch
 from sklearn.metrics import classification_report
-from numberical_embed import StringConverter
+from classification_proccesor import ClassificationReportParser
 from sklearn.preprocessing import LabelEncoder
 
 class BERTTrainer:
@@ -30,6 +30,7 @@ class BERTTrainer:
             label_encoder = LabelEncoder()
             y_train = label_encoder.fit_transform(y_train_str)
             y_test = label_encoder.fit_transform(y_test_str)
+            label_encoder_dict = dict(zip(label_encoder.classes_, label_encoder.transform(label_encoder.classes_)))
             # for example in y_train_str:
             #     y_train.append(self.converter.string_to_integer(example))
 
@@ -105,14 +106,17 @@ class BERTTrainer:
             f1 = f1_score(y_test, y_pred, average='weighted')
             print("!7")
 
-            # Compute classification report
             class_report = classification_report(y_test, y_pred)
             print("!7")
 
             self.model.save_pretrained(self.model_path)
             print("!7")
 
-            return accuracy, f1, class_report
+            parser = ClassificationReportParser(class_report)
+
+            class_report_dict = parser.parse_report()
+
+            return accuracy, f1, class_report_dict, label_encoder_dict
         except Exception as e:
             print("Error in bert train")
             print(e)

@@ -8,6 +8,7 @@ Table: model_class_info
 ----------
 datamodel_id | TEXT
 class_name | TEXT
+class_label | INTEGER
 accuracy | REAL
 f1_score | REAL
 

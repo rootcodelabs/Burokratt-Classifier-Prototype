@@ -55,14 +55,22 @@ class CoreClassifierTrain:
 
                     if model:
                         print("4")
-                        accuracy, f1_score, class_report = model.train(X_train, y_train, X_test, y_test)
+                        accuracy, f1_score, class_report_dict, label_encoder_dict = model.train(X_train, y_train, X_test, y_test)
+                        for class_name_str, class_label in label_encoder_dict:
+                            result = SQLiteDatabase().insert_record('model_class_info', 
+                                    {'datamodel_id': f'{datamodel_id}_{model_name}', 
+                                    'class_name': class_name_str, 'class_label': class_label, 
+                                    'precision': class_report_dict[str(class_label)]['precision'],
+                                    'recall': class_report_dict[str(class_label)]['recall'],
+                                    'f1_score': class_report_dict[str(class_label)]['f1-score']})
                         print("5")
                         print(f"{model_name.capitalize()} Accuracy:", accuracy)
                         print(f"{model_name.capitalize()} F1 Score:", f1_score)
-                        print(f"{model_name.capitalize()} class_report:", class_report)
-                        print(f"{model_name.capitalize()} class_report type:", type(class_report))
+                        print(f"{model_name.capitalize()} class_report:", class_report_dict)
                         print("5")
                         SQLiteDatabase().insert_record('model_info', {'datamodel_id': f'{datamodel_id}_{model_name}', 'accuracy': accuracy, 'f1_score': f1_score})
+
+                        # SQLiteDatabase().insert_record('model_class_info', {'datamodel_id': f'{datamodel_id}_{model_name}', 'class_name': "", 'class_label': "", 'accuracy': accuracy, 'f1_score': f1_score})
 
                 return True, []
             else:
