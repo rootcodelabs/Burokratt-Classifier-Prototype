@@ -1,3 +1,4 @@
+from database.database_connection import SQLiteDatabase
 from nlp_models.bert import BERTClassifier
 from nlp_models.albert import ALBERTClassifier
 from nlp_models.xlnet import XLNetClassifier
@@ -26,7 +27,15 @@ class TextClassifier:
                 raise ValueError("Unsupported base model")
             
             prediction = classifier.classify_text(text)
-            return prediction
+
+            query = f"SELECT class_name, class_label FROM model_class_info WHERE datamodel_id = '{self.datamodel_id}'"
+            model_class_info_records = SQLiteDatabase().execute_query(query)
+            print(f"model_class_info_records : \n {model_class_info_records}")
+            class_label_name_dict = {}
+            for model_class in model_class_info_records:
+                class_label_name_dict[model_class[2]] = model_class[1]
+
+            return class_label_name_dict[int(prediction)]
         
         except FileNotFoundError:
             raise FileNotFoundError(f"Model files not found for datamodel_id: {self.datamodel_id}")
