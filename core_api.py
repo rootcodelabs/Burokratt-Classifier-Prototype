@@ -324,8 +324,12 @@ def get_model_info():
     try:
         query = "SELECT datamodel_id, accuracy, f1_score FROM model_info"
         model_info_records = SQLiteDatabase().execute_query(query)
-        query = "SELECT datamodel_id, accuracy, f1_score FROM model_info"
-        model_info_records = SQLiteDatabase().execute_query(query)
+
+        query = "SELECT * FROM model_class_info"
+        model_class_info_records = SQLiteDatabase().execute_query(query)
+
+        print(f"model_info_records : \n {model_info_records}")
+        print(f"model_class_info_records : \n {model_class_info_records}")
 
         model_info_list = []
         for record in model_info_records:
