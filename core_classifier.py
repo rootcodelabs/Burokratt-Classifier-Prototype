@@ -58,12 +58,14 @@ class CoreClassifierTrain:
                         accuracy, f1_score, class_report_dict, label_encoder_dict = model.train(X_train, y_train, X_test, y_test)
                         print(f'Label Encoder dict : \n {label_encoder_dict}')
                         for class_name_str, class_label in label_encoder_dict:
+                            print("RTETDGADFDSFADFADSFADSFADFSDAFSADFASDFASDFASDFSADF")
                             result = SQLiteDatabase().insert_record('model_class_info', 
                                     {'datamodel_id': f'{datamodel_id}_{model_name}', 
                                     'class_name': class_name_str, 'class_label': class_label, 
                                     'precision': class_report_dict[str(class_label)]['precision'],
                                     'recall': class_report_dict[str(class_label)]['recall'],
                                     'f1_score': class_report_dict[str(class_label)]['f1-score']})
+                            print("156498798789754523421321234897897897894545642345646")
                             print("*************************")
                             print({'datamodel_id': f'{datamodel_id}_{model_name}', 
                                     'class_name': class_name_str, 'class_label': class_label, 
@@ -71,6 +73,7 @@ class CoreClassifierTrain:
                                     'recall': class_report_dict[str(class_label)]['recall'],
                                     'f1_score': class_report_dict[str(class_label)]['f1-score']})
                             print("*************************")
+                            print("@!#@#&*)&^*(&%^()&^)&((^$)%&%(*%$(^*%(^)*$")
                         print("5")
                         print(f"{model_name.capitalize()} Accuracy:", accuracy)
                         print(f"{model_name.capitalize()} F1 Score:", f1_score)
