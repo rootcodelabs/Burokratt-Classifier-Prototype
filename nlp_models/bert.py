@@ -26,10 +26,10 @@ class BERTTrainer:
 
             y_train = []
             y_test = []
-            for example in y_train:
+            for example in y_train_str:
                 y_train.append(self.converter.string_to_integer(example))
 
-            for example in y_test:
+            for example in y_test_str:
                 y_test.append(self.converter.string_to_integer(example))
 
             train_labels = torch.tensor(y_train)
