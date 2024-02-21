@@ -274,6 +274,25 @@ def import_data(dataset_name: str = Form(...), file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# Endpoint to import data from file to given class : 
+@app.post("class/datasets/import/")
+def import_data(dataset_name: str = Form(...), class_name: str = Form(...), file: UploadFile = File(...)):
+    try:
+        UPLOAD_DIRECTORY = "uploaded_files"
+        if not os.path.exists(UPLOAD_DIRECTORY):
+            os.makedirs(UPLOAD_DIRECTORY)
+
+        file_location = os.path.join(UPLOAD_DIRECTORY, file.filename)
+        # Save the file to the specified location
+        with open(file_location, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        result = data_importer.import_data_from_file(dataset_name, file_location, class_name)
+
+        return {"message": "Data imported successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # API endpoint to add new data to the dataset
 @app.post("/datasets/add_data/")
 def add_data(data_input: DataInput):

@@ -9,7 +9,7 @@ class DataImporter:
         # self.db = SQLiteDatabase()
         pass
 
-    def import_data_from_file(self, dataset_name, file_location):
+    def import_data_from_file(self, dataset_name, file_location, upload_class_name = False):
         try:
 
             data, file_type = self._load_data(file_location)
@@ -42,17 +42,33 @@ class DataImporter:
                             SQLiteDatabase().execute_query(query)
                     SQLiteDatabase().insert_record('dataset_info', {'dataset_id': str(dataset_id),'dataset_name':str(dataset_name)})
                 else:
-                    for idx, datum in enumerate(data):
-                        print(datum)
-                        record = {
-                            'dataset_id': str(dataset_id),
-                            'data_id': str(idx),
-                            'data': str(datum),
-                            'class_name': ''
-                        }
-                        print(record)
-                        print("=====")
-                        SQLiteDatabase().insert_record('data_info', record)
+                    if upload_class_name:
+                        for idx, datum in enumerate(data):
+                            print(datum)
+                            record = {
+                                'dataset_id': str(dataset_id),
+                                'data_id': str(idx),
+                                'data': str(datum),
+                                'class_name': upload_class_name
+                            }
+                            print(record)
+                            print("=====")
+                            SQLiteDatabase().insert_record('data_info', record)
+
+                            query = f"""INSERT OR IGNORE INTO class_dataset_info (class_name, dataset_id) VALUES ('{str(class_name).upper()}','{str(dataset_id)}')"""
+                            SQLiteDatabase().execute_query(query)
+                    else:
+                        for idx, datum in enumerate(data):
+                            print(datum)
+                            record = {
+                                'dataset_id': str(dataset_id),
+                                'data_id': str(idx),
+                                'data': str(datum),
+                                'class_name': ''
+                            }
+                            print(record)
+                            print("=====")
+                            SQLiteDatabase().insert_record('data_info', record)
                     SQLiteDatabase().insert_record('dataset_info', {'dataset_id': str(dataset_id),'dataset_name':str(dataset_name)})
             return True
         except Exception as e:
