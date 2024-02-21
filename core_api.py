@@ -177,6 +177,10 @@ def get_single_dataset(dataset_id: str):
         for class_name in result:
             class_names.append(class_name[0])
 
+        print("DULAN TEST ::::::::::::::::::::::::::::::::::::::::::::")
+        print({"labels": class_names, "data": dataset_info})
+        print("DULAN TEST ::::::::::::::::::::::::::::::::::::::::::::")
+
         return {"labels": class_names, "data": dataset_info}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
