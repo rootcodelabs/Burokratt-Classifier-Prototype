@@ -31,15 +31,22 @@ class ALBERTTrainer:
 
     def train(self, X_train, y_train, X_test, y_test):
         try:
+            print("@1")
             X_train, y_train = self._preprocess_data(X_train, y_train)
+            print("@1")
             X_test, y_test = self._preprocess_data(X_test, y_test)
+            print("@1")
 
             label_encoder_dict = dict(zip(self.label_encoder.classes_, self.label_encoder.transform(self.label_encoder.classes_)))
+            print("@1")
 
             train_inputs = self._tokenize_data(X_train)
+            print("@1")
             test_inputs = self._tokenize_data(X_test)
+            print("@1")
 
             self.model = AlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=len(set(y_train)))
+            print("@1")
 
             training_args = TrainingArguments(
                 per_device_train_batch_size=8,
@@ -56,6 +63,7 @@ class ALBERTTrainer:
                 load_best_model_at_end=True,
                 metric_for_best_model='accuracy'
             )
+            print("@1")
 
 
             trainer = Trainer(
@@ -66,21 +74,29 @@ class ALBERTTrainer:
                 compute_metrics=lambda p: {'accuracy': accuracy_score(p.predictions.argmax(-1), p.label_ids),
                                             'f1_score': f1_score(p.predictions.argmax(-1), p.label_ids, average='weighted')}
             )
+            print("@1")
 
             trainer.train()
+            print("@1")
 
             self.model.save_pretrained(self.model_path)
+            print("@1")
 
             evaluation_results = trainer.evaluate(eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)))
+            print("@1")
 
             y_pred = trainer.predict(eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)))[0]
+            print("@1")
 
             class_report = classification_report(y_test, y_pred, target_names=self.label_encoder.classes_)
+            print("@1")
 
             parser = ClassificationReportParser(class_report)
+            print("@1")
 
             # Parse the report
             class_report_dict = parser.parse_report()
+            print("@1")
 
             return evaluation_results['accuracy'], evaluation_results['f1_score'], class_report_dict, label_encoder_dict
         except Exception as e:
