@@ -452,16 +452,16 @@ def train_and_evaluate(data: TrainAndEvaluateInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# # API endpoint to classify text using a specified model
-# @app.post("/classify_text/")
-# def classify_text(datamodel_id: str, text: str):
-#     try:
-#         result = text_classifier.classify_text(datamodel_id, text)
-#         return {"classification_result": result}
-#     except ValueError as ve:
-#         raise HTTPException(status_code=400, detail=str(ve))
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+# API endpoint to classify text using a specified model
+@app.post("/classify_text/")
+def classify_text(datamodel_id: str, text: str):
+    try:
+        result = text_classifier.classify_text(datamodel_id, text)
+        return {"classification_result": result}
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
