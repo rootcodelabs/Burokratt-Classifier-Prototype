@@ -50,6 +50,7 @@ class CoreClassifierTrain:
                     print("@#@#@#!@")
                     model = None
                     if model_name == 'bert':
+                        break
                         print("in bert")
                         model = BERTTrainer(f"{datamodel_id}_{model_name}")
                     elif model_name == 'albert':
