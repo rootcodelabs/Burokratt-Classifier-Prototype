@@ -66,6 +66,10 @@ class NewClass(BaseModel):
     class_name: str
     dataset: List[str]
 
+class NewData(BaseModel):
+    class_name: str
+    data: List[str]
+
 # Endpoint to retrieve information about datasets : TESTED
 @app.get("/datasets/info/")
 def get_datasets_info():
@@ -319,12 +323,45 @@ def class_data(class_name_list:List[str]):
                 dataset[class_name] = [data]
     return dataset
 
-    # dataset_ids = []
-    # for dataset_id in result:
-    #     dataset_ids.append(dataset_id[0])
-    # return {"dataset_ids": dataset_ids}
+# API endpoint to retrieve data for given class : TESTED
+@app.get("/class/data/{class_name}")
+def class_data(class_name:str):
+    data_list = []
+    query = f"""SELECT data_id, data FROM data_info WHERE class_name = '{class_name.upper()}'"""
+    result = SQLiteDatabase().execute_query(query)
+    for row in result:
+        data_id, data = row
+        data_list.append({'data_id':data_id, 'data':data})
+    return {'data':data_list}
 
+#API endpoint to add data to given class : TESTED
+@app.post("/class/data/add")
+def class_data(new_data:NewData):
+    class_name = str(new_data.class_name).upper()
+    data_list = new_data.data
+    for data in data_list:
+        dataset_id = '0'
+        last_data_id_query = f"SELECT MAX(CAST(data_id AS INTEGER)) FROM data_info WHERE dataset_id = '{dataset_id}'"
+        last_data_id_result = SQLiteDatabase().execute_query(last_data_id_query)
+        last_data_id = last_data_id_result[0][0] if last_data_id_result[0][0] is not None else 0
 
+        new_data_id = str(int(last_data_id) + 1)
+
+        new_data_record = {
+            'dataset_id': dataset_id,
+            'data_id': new_data_id,
+            'data': data,
+            'class_name': class_name
+        }
+        SQLiteDatabase().insert_record('data_info', new_data_record)
+
+        query = f"""INSERT OR IGNORE INTO class_info (class_name) VALUES ('{class_name}')"""
+        SQLiteDatabase().execute_query(query)
+
+        query = f"""INSERT OR IGNORE INTO class_dataset_info (class_name, dataset_id) VALUES ('{class_name}','{dataset_id}')"""
+        SQLiteDatabase().execute_query(query)
+
+    return True
 
 # API endpoint to retrieve information about all data inside model_info table
 @app.get("/model_info/")
@@ -398,6 +435,15 @@ def delete_model_info(datamodel_id: str):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+
+
+
+
+
+
+
 
 
 
