@@ -32,6 +32,7 @@ class CoreClassifierTrain:
             # if is_labeled is False:
             #     return False, data
             # elif is_labeled is True:
+            print("1")
             if data:
                 X = []
                 y = []
@@ -40,6 +41,7 @@ class CoreClassifierTrain:
                     y.extend([label] * len(examples))
 
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+                print("2")
 
                 for model_name in selected_models:
                     model = None
@@ -49,14 +51,18 @@ class CoreClassifierTrain:
                         model = ALBERTTrainer(f"{datamodel_id}_{model_name}")
                     elif model_name == 'xlnet':
                         model = XLNetTrainer(f"{datamodel_id}_{model_name}")
+                print("3")
 
-                    if model:
-                        accuracy, f1_score, class_report = model.train(X_train, y_train, X_test, y_test)
-                        print(f"{model_name.capitalize()} Accuracy:", accuracy)
-                        print(f"{model_name.capitalize()} F1 Score:", f1_score)
-                        print(f"{model_name.capitalize()} class_report:", class_report)
-                        print(f"{model_name.capitalize()} class_report type:", type(class_report))
-                        SQLiteDatabase().insert_record('model_info', {'datamodel_id': f'{datamodel_id}_{model_name}', 'accuracy': accuracy, 'f1_score': f1_score})
+                if model:
+                    print("4")
+                    accuracy, f1_score, class_report = model.train(X_train, y_train, X_test, y_test)
+                    print("5")
+                    print(f"{model_name.capitalize()} Accuracy:", accuracy)
+                    print(f"{model_name.capitalize()} F1 Score:", f1_score)
+                    print(f"{model_name.capitalize()} class_report:", class_report)
+                    print(f"{model_name.capitalize()} class_report type:", type(class_report))
+                    print("5")
+                    SQLiteDatabase().insert_record('model_info', {'datamodel_id': f'{datamodel_id}_{model_name}', 'accuracy': accuracy, 'f1_score': f1_score})
 
                 return True, []
             else:
