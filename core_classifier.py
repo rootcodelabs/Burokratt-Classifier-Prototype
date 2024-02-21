@@ -46,12 +46,17 @@ class CoreClassifierTrain:
 
                 for model_name in selected_models:
                     print("SELECTED MIDELS @#!@")
+                    print(model_name)
+                    print("@#@#@#!@")
                     model = None
                     if model_name == 'bert':
+                        print("in bert")
                         model = BERTTrainer(f"{datamodel_id}_{model_name}")
                     elif model_name == 'albert':
+                        print("in albert")
                         model = ALBERTTrainer(f"{datamodel_id}_{model_name}")
                     elif model_name == 'xlnet':
+                        print("in xlnet")
                         model = XLNetTrainer(f"{datamodel_id}_{model_name}")
                     print("3")
 
