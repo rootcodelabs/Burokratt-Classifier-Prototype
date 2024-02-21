@@ -2,10 +2,12 @@ from transformers import BertTokenizer, BertForSequenceClassification
 from sklearn.metrics import accuracy_score, f1_score
 import torch
 from sklearn.metrics import classification_report
+from numberical_embed import StringConverter
 
 class BERTTrainer:
     def __init__(self, datamodel_id):
         try:
+            self.converter = StringConverter()
             self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
             self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=3)
             self.model_path = f'nlp_models/{datamodel_id}/'
@@ -14,13 +16,21 @@ class BERTTrainer:
             print(e)
             print("#####")
 
-    def train(self, X_train, y_train, X_test, y_test):
+    def train(self, X_train, y_train_str, X_test, y_test_str):
         try:
             print("!1")
             train_encodings = self.tokenizer(X_train, truncation=True, padding=True)
             print("!1")
             test_encodings = self.tokenizer(X_test, truncation=True, padding=True)
             print("!1")
+
+            y_train = []
+            y_test = []
+            for example in y_train:
+                y_train.append(self.converter.string_to_integer(example))
+
+            for example in y_test:
+                y_test.append(self.converter.string_to_integer(example))
 
             train_labels = torch.tensor(y_train)
             print("!1")
