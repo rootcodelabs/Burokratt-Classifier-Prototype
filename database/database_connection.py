@@ -58,16 +58,20 @@ class SQLiteDatabase:
         - record: A dictionary representing the record to be inserted.
                   Example: {'name': 'John Doe', 'age': 30, 'email': 'john@example.com'}
         """
-        columns = ', '.join(record.keys())
-        placeholders = ', '.join(['?' for _ in record.keys()])
-        insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+        try:
+            columns = ', '.join(record.keys())
+            placeholders = ', '.join(['?' for _ in record.keys()])
+            insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
-        print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-        print(f"Insert Query {insert_query}")
-        print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+            print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+            print(f"Insert Query {insert_query}")
+            print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
-        self.cursor.execute(insert_query, list(record.values()))
-        self.conn.commit()
+            self.cursor.execute(insert_query, list(record.values()))
+            self.conn.commit()
+        except Exception as e:
+            print("Exception in insert_record")
+            print(e)
 
     def update_record(self, table_name, record_id, new_values):
         """
