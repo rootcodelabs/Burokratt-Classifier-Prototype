@@ -28,52 +28,52 @@ class ALBERTTrainer:
         tokenized_inputs = self.tokenizer(X, padding=True, truncation=True, return_tensors="pt")
         return tokenized_inputs
 
-def train(self, X_train, y_train, X_test, y_test):
+    def train(self, X_train, y_train, X_test, y_test):
 
-    X_train, y_train = self._preprocess_data(X_train, y_train)
-    X_test, y_test = self._preprocess_data(X_test, y_test)
+        X_train, y_train = self._preprocess_data(X_train, y_train)
+        X_test, y_test = self._preprocess_data(X_test, y_test)
 
-    train_inputs = self._tokenize_data(X_train)
-    test_inputs = self._tokenize_data(X_test)
+        train_inputs = self._tokenize_data(X_train)
+        test_inputs = self._tokenize_data(X_test)
 
-    self.model = AlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=len(set(y_train)))
+        self.model = AlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=len(set(y_train)))
 
-    training_args = TrainingArguments(
-        per_device_train_batch_size=8,
-        per_device_eval_batch_size=8,
-        evaluation_strategy='epoch',
-        logging_dir='./logs',
-        output_dir='./results',
-        num_train_epochs=1,
-        logging_steps=100,
-        save_steps=1000,
-        warmup_steps=500,
-        weight_decay=0.01,
-        logging_first_step=True,
-        load_best_model_at_end=True,
-        metric_for_best_model='accuracy'
-    )
+        training_args = TrainingArguments(
+            per_device_train_batch_size=8,
+            per_device_eval_batch_size=8,
+            evaluation_strategy='epoch',
+            logging_dir='./logs',
+            output_dir='./results',
+            num_train_epochs=1,
+            logging_steps=100,
+            save_steps=1000,
+            warmup_steps=500,
+            weight_decay=0.01,
+            logging_first_step=True,
+            load_best_model_at_end=True,
+            metric_for_best_model='accuracy'
+        )
 
-    trainer = Trainer(
-        model=self.model,
-        args=training_args,
-        train_dataset=torch.utils.data.TensorDataset(train_inputs['input_ids'], train_inputs['attention_mask'], torch.tensor(y_train)),
-        eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)),
-        compute_metrics=lambda p: {'accuracy': accuracy_score(p.predictions.argmax(-1), p.label_ids),
-                                    'f1_score': f1_score(p.predictions.argmax(-1), p.label_ids, average='weighted')}
-    )
+        trainer = Trainer(
+            model=self.model,
+            args=training_args,
+            train_dataset=torch.utils.data.TensorDataset(train_inputs['input_ids'], train_inputs['attention_mask'], torch.tensor(y_train)),
+            eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)),
+            compute_metrics=lambda p: {'accuracy': accuracy_score(p.predictions.argmax(-1), p.label_ids),
+                                        'f1_score': f1_score(p.predictions.argmax(-1), p.label_ids, average='weighted')}
+        )
 
-    trainer.train()
+        trainer.train()
 
-    self.model.save_pretrained(self.model_path)
+        self.model.save_pretrained(self.model_path)
 
-    evaluation_results = trainer.evaluate(eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)))
+        evaluation_results = trainer.evaluate(eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)))
 
-    y_pred = trainer.predict(eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)))[0]
+        y_pred = trainer.predict(eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)))[0]
 
-    class_report = classification_report(y_test, y_pred, target_names=self.label_encoder.classes_)
+        class_report = classification_report(y_test, y_pred, target_names=self.label_encoder.classes_)
 
-    return evaluation_results['accuracy'], evaluation_results['f1_score'], class_report
+        return evaluation_results['accuracy'], evaluation_results['f1_score'], class_report
 
 class ALBERTClassifier:
     def __init__(self, datamodel_id):
