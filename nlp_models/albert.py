@@ -1,3 +1,4 @@
+from classification_proccesor import ClassificationReportParser
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import LabelEncoder
 from transformers import AlbertTokenizer, AlbertForSequenceClassification, Trainer, TrainingArguments
@@ -32,6 +33,8 @@ class ALBERTTrainer:
 
         X_train, y_train = self._preprocess_data(X_train, y_train)
         X_test, y_test = self._preprocess_data(X_test, y_test)
+
+        label_encoder_dict = dict(zip(self.label_encoder.classes_, self.label_encoder.transform(self.label_encoder.classes_)))
 
         train_inputs = self._tokenize_data(X_train)
         test_inputs = self._tokenize_data(X_test)
@@ -73,7 +76,12 @@ class ALBERTTrainer:
 
         class_report = classification_report(y_test, y_pred, target_names=self.label_encoder.classes_)
 
-        return evaluation_results['accuracy'], evaluation_results['f1_score'], class_report
+        parser = ClassificationReportParser(class_report)
+
+        # Parse the report
+        class_report_dict = parser.parse_report()
+
+        return evaluation_results['accuracy'], evaluation_results['f1_score'], class_report_dict, label_encoder_dict
 
 class ALBERTClassifier:
     def __init__(self, datamodel_id):
