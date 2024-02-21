@@ -403,11 +403,16 @@ def get_model_info():
         print(f"model_info_records : \n {model_info_records}")
         print(f"model_class_info_records : \n {model_class_info_records}")
 
-        model_info = []
+        model_info_dict = {}
         for model in model_info_records:
-            pass
+            model_info_dict[model[0]] = {'model_id':model[0], 'model_name':model[1], 'model_accuracy':model[2], 'model_f1':model[3], "scores":[]}
+
+        for model_class in model_class_info_records:
+            model_info_dict[model_class[0]]["scores"].append({"class_name":model_class[1], "class_id":model_class[2], "precision":model_class[3], "f1_score":model_class[5]})
+        return list(model_info_dict.values())
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+        return []
 
 # API endpoint to delete a specific row in the model_info table and corresponding model folder
 @app.delete("/model_info/{datamodel_id}")
