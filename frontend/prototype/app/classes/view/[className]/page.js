@@ -37,7 +37,7 @@ function ViewClass({ params }) {
   const getDatasetInfo = () => {
     setIsLoading(true);
     axios
-      .get(`http://localhost:8000/class/data/${params.className}`)
+      .get(`http://0.0.0.0:8000/class/data/${params.className}`)
       .then((response) => {
         // Process the response
         setTableData(response?.data?.data);

@@ -42,7 +42,7 @@ function TryClassifier() {
     };
     setIsClassifierLoading(true);
     axios
-      .post(`http://localhost:8000/classify_text`, requestObject)
+      .post(`http://0.0.0.0:8000/classify_text`, requestObject)
       .then((response) => {
         // Process the response
         setClassifierOutput(response?.data?.classification_result);
@@ -59,7 +59,7 @@ function TryClassifier() {
   const getAvailableModels = () => {
     setIsDataLoading(true);
     axios
-      .get("http://localhost:8000/model_names/")
+      .get("http://0.0.0.0:8000/model_names/")
       .then((response) => {
         // Process the response
         setAvailableModels(response?.data);
