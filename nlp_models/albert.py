@@ -1,14 +1,16 @@
+from classification_proccesor import ClassificationReportParser
 import torch
 from transformers import AlbertForSequenceClassification, AlbertTokenizer
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import TensorDataset, DataLoader
 from transformers import AdamW
+from sklearn.metrics import classification_report
 import numpy as np
 
 class ALBERTTrainer:
-    def __init__(self, model_save_location):
-        self.model_save_location = model_save_location
+    def __init__(self, datamodel_id):
+        self.model_save_location = f'nlp_models/{datamodel_id}/model.pth'
         self.model = AlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=2)
         self.tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
 
@@ -17,6 +19,8 @@ class ALBERTTrainer:
         label_encoder = LabelEncoder()
         y_train_encoded = label_encoder.fit_transform(y_train)
         y_test_encoded = label_encoder.transform(y_test)
+
+        label_encoder_dict = dict(zip(label_encoder.classes_, label_encoder.transform(label_encoder.classes_)))
 
         # Tokenize input data
         X_train_tokens = self.tokenizer(X_train, padding=True, truncation=True, return_tensors='pt')
@@ -39,7 +43,7 @@ class ALBERTTrainer:
 
         # Training loop
         self.model.train()
-        for epoch in range(3):  # Adjust number of epochs as needed
+        for epoch in range(1):  # Adjust number of epochs as needed
             for batch in train_loader:
                 input_ids, attention_mask, labels = batch
                 optimizer.zero_grad()
@@ -68,7 +72,13 @@ class ALBERTTrainer:
         # Save the trained model
         torch.save(self.model.state_dict(), self.model_save_location)
 
-        return accuracy, f1
+        class_report = classification_report(y_test_encoded, predictions)
+        parser = ClassificationReportParser(class_report)
+
+        # Parse the report
+        class_report_dict = parser.parse_report()
+
+        return accuracy, f1, class_report_dict, label_encoder_dict
 
 # Example usage:
 if __name__ == "__main__":
