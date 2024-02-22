@@ -7,6 +7,7 @@ from torch.utils.data import TensorDataset, DataLoader
 from transformers import AdamW
 from sklearn.metrics import classification_report
 import numpy as np
+import os
 
 class ALBERTTrainer:
     def __init__(self, datamodel_id):
@@ -69,6 +70,12 @@ class ALBERTTrainer:
         accuracy = accuracy_score(true_labels, predictions)
         f1 = f1_score(true_labels, predictions, average='weighted')
 
+        print("Label encoder")
+        print(label_encoder_dict)
+
+        if not os.path.exists(os.path.dirname(self.model_save_location)):
+            os.makedirs(os.path.dirname(self.model_save_location))  
+
         # Save the trained model
         torch.save(self.model.state_dict(), self.model_save_location)
 
@@ -77,6 +84,8 @@ class ALBERTTrainer:
 
         # Parse the report
         class_report_dict = parser.parse_report()
+        print("Class report")
+        print(class_report_dict)
 
         return accuracy, f1, class_report_dict, label_encoder_dict
 
