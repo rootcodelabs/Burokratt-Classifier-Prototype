@@ -85,18 +85,24 @@ class DataImporter:
     def _load_csv(self, file_location):
         try:
             data = {}
+            data_list = []
+            state  = False
             with open(file_location, 'r') as file:
                 reader = csv.reader(file)
                 for row in reader:
                     if len(row) == 1:  # If only one column
-                        data.append(row[0])
+                        data_list.append(row[0])
+                        state = True
                     elif len(row) == 2:  # If two columns
                         key = row[1]
                         value = row[0]
                         if key not in data:
                             data[key] = []
                         data[key].append(value)
-            return data
+            if state:
+                return data_list
+            else:
+                return data
         except Exception as e:
             self.handle_error('_load_csv', e)
 
