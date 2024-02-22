@@ -10,6 +10,8 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     command: python core_api.py
+    networks:
+      - custom_network
 
   frontend:
     build:
@@ -19,4 +21,6 @@ services:
       - "3000:3000"
     environment:
       - REACT_APP_BACKEND_URL=http://backend:8000
+    networks:
+      - custom_network
 

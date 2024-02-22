@@ -21,7 +21,7 @@ export default function Models() {
   const getAllModelsInfo = () => {
     setIsDataLoading(true);
     axios
-      .get(`http://localhost:8000/model_info/`)
+      .get(`http://backend:8000/model_info/`)
       .then((response) => {
         setAllModels(response.data);
         setIsDataLoading(false);
@@ -37,7 +37,7 @@ export default function Models() {
   const getAllClassesInfo = () => {
     setIsDataLoading(true);
     axios
-      .get(`http://localhost:8000/class_names/`)
+      .get(`http://backend:8000/class_names/`)
       .then((response) => {
         // Process the response
         setAllClasses(response?.data?.data);
@@ -62,7 +62,7 @@ export default function Models() {
   const createModel = (modelData) => {
     setIsTrainingLoading(true);
     axios
-      .post(`http://localhost:8000/train_and_evaluate/`, modelData)
+      .post(`http://backend:8000/train_and_evaluate/`, modelData)
       .then((response) => {
         if (response?.data?.Success) {
           alert("Model Created Successfully!");

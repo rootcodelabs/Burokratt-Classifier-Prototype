@@ -43,7 +43,7 @@ const UpdateClassModal = ({ className, show, onHide, onSuccessCallBack }) => {
     };
     axios
       .post(
-        `http://localhost:8000/class/datasets/import/`,
+        `http://backend:8000/class/datasets/import/`,
         importedDatasetObject,
         {
           headers: {
@@ -82,7 +82,7 @@ const UpdateClassModal = ({ className, show, onHide, onSuccessCallBack }) => {
       data: userData,
     };
     axios
-      .post(`http://localhost:8000/class/data/add`, dataSamplesObject)
+      .post(`http://backend:8000/class/data/add`, dataSamplesObject)
       .then((response) => {
         if (response?.status === 200) {
           alert("Class Successfully Updated!");
