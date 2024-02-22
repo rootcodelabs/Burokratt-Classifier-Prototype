@@ -466,9 +466,9 @@ def train_and_evaluate(data: TrainAndEvaluateInput):
     try:
         success, message = core_classifier_trainer.train_and_evaluate(data.model_name, data.class_name_list, data.selected_models)
         if success is True:
-            return {"message": "Training and evaluation completed successfully", "details": message}
+            return {"Success":True, "message": "Training and evaluation completed successfully", "details": message}
         elif success is False:
-            return {"message": "Error occurred during training and evaluation", "details": message}
+            return {"Success":False, "message": "Error occurred during training and evaluation", "details": message}
         else:
             raise HTTPException(status_code=400, detail=message)
     except Exception as e:

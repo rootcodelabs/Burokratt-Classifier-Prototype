@@ -1,14 +1,12 @@
 # EST_Classifier
 Burokratt-Classifier-Prototype-Rootcode
 
-docker build -t classifier .
-docker run -d -p 8000:8000 classifier
+This is a prototype for Burokratt-Classifier. This readme document explains below given points.
+1. How to run the prototype
+2. What is included in the prototype
+3. Special points that needs to be considerd
 
-docker logs -f 2b1dbd6bfd32
+1.How to run prototype
+You need to have docker properly installed and configured. and after that take clone of the github repo by 
 
-docker-compose up --build
-
-
-docker build -t classifier -f backend.Dockerfile .
-
-docker run -d -p 8000:8000 --name classifier_backend classifier
+You will see 4 main sections in the slide bar 
