@@ -1,61 +1,54 @@
+import os
+import numpy as np
 import torch
-from transformers import XLNetTokenizer, XLNetForSequenceClassification
-from torch.utils.data import Dataset, DataLoader
-from tqdm import tqdm
+from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, f1_score
-from sklearn.metrics import classification_report
-
-class CustomDataset(Dataset):
-    def __init__(self, X, y, tokenizer, max_len):
-        self.tokenizer = tokenizer
-        self.text = X
-        self.targets = y
-        self.max_len = max_len
-
-    def __len__(self):
-        return len(self.text)
-
-    def __getitem__(self, idx):
-        text = str(self.text[idx])
-        target = self.targets[idx]
-
-        inputs = self.tokenizer.encode_plus(
-            text,
-            None,
-            add_special_tokens=True,
-            max_length=self.max_len,
-            padding='max_length',
-            truncation=True,
-            return_token_type_ids=True
-        )
-
-        return {
-            'input_ids': torch.tensor(inputs['input_ids'], dtype=torch.long),
-            'attention_mask': torch.tensor(inputs['attention_mask'], dtype=torch.long),
-            'labels': torch.tensor(target, dtype=torch.long)
-        }
+from transformers import XLNetTokenizer, XLNetForSequenceClassification, AdamW
+from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
+from tqdm import tqdm
 
 class XLNetTrainer:
     def __init__(self, datamodel_id):
-        self.model_path = f'nlp_models/{datamodel_id}/'
+        self.model_save_path = f'nlp_models/{datamodel_id}/model'
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
-        self.model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=1)
+        self.model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=2)
+        self.label_encoder = LabelEncoder()
 
-    #Epoch here
-    def train(self, train_loader, test_loader, num_epochs=1, learning_rate=2e-5):
+    def train(self, X_train, y_train, X_test, y_test):
+        # Encode labels
+        y_train_encoded = self.label_encoder.fit_transform(y_train)
+        y_test_encoded = self.label_encoder.transform(y_test)
+
+        # Tokenize inputs
+        X_train_tokens = self.tokenizer(X_train, padding=True, truncation=True, max_length=256, return_tensors='pt')
+        X_test_tokens = self.tokenizer(X_test, padding=True, truncation=True, max_length=256, return_tensors='pt')
+
+        # Create DataLoader
+        train_dataset = TensorDataset(X_train_tokens['input_ids'], X_train_tokens['attention_mask'], torch.tensor(y_train_encoded))
+        test_dataset = TensorDataset(X_test_tokens['input_ids'], X_test_tokens['attention_mask'], torch.tensor(y_test_encoded))
+
+        batch_size = 8
+        train_dataloader = DataLoader(train_dataset, sampler=RandomSampler(train_dataset), batch_size=batch_size)
+        test_dataloader = DataLoader(test_dataset, sampler=SequentialSampler(test_dataset), batch_size=batch_size)
+
+        # Set device
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
 
-        optimizer = torch.optim.AdamW(params=self.model.parameters(), lr=learning_rate)
+        # Set optimizer and loss function
+        optimizer = AdamW(self.model.parameters(), lr=2e-5)
+        criterion = torch.nn.CrossEntropyLoss()
 
-        for epoch in range(num_epochs):
+        # Training loop
+        epochs = 1
+        for epoch in range(epochs):
             self.model.train()
             train_loss = 0.0
-
-            for batch in tqdm(train_loader, desc="Epoch " + str(epoch)):
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                labels = batch['labels'].to(device)
+            for batch in tqdm(train_dataloader, desc=f'Epoch {epoch + 1}/{epochs}', unit='batches'):
+                input_ids, attention_mask, labels = batch
+                input_ids = input_ids.to(device)
+                attention_mask = attention_mask.to(device)
+                labels = labels.to(device)
 
                 optimizer.zero_grad()
                 outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
@@ -65,35 +58,43 @@ class XLNetTrainer:
                 loss.backward()
                 optimizer.step()
 
-            print(f"Epoch {epoch} - Training loss: {train_loss / len(train_loader)}")
+            # Evaluate on test set
+            test_loss, test_accuracy, test_f1 = self.evaluate(test_dataloader, device, criterion)
+            print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss / len(train_dataloader)}, Test Loss: {test_loss}, Test Accuracy: {test_accuracy}, Test F1: {test_f1}")
 
-        self.model.save_pretrained(self.model_path)
+        # Save model
+        self.model.save_pretrained(self.model_save_path)
 
+        return test_accuracy, test_f1
+
+    def evaluate(self, dataloader, device, criterion):
         self.model.eval()
-        predictions, true_labels = [], []
+        eval_loss = 0
+        predictions = []
+        true_labels = []
 
         with torch.no_grad():
-            for batch in tqdm(test_loader, desc="Evaluating"):
-                input_ids = batch['input_ids'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                labels = batch['labels'].to(device)
+            for batch in dataloader:
+                input_ids, attention_mask, labels = batch
+                input_ids = input_ids.to(device)
+                attention_mask = attention_mask.to(device)
+                labels = labels.to(device)
 
-                outputs = self.model(input_ids, attention_mask=attention_mask)
+                outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
                 logits = outputs.logits
+                loss = criterion(logits.view(-1, self.model.config.num_labels), labels)
+                eval_loss += loss.item()
 
-                preds = torch.argmax(logits, dim=1).flatten()
-                predictions.extend(preds.cpu().detach().numpy())
-                true_labels.extend(labels.cpu().detach().numpy())
+                logits = logits.detach().cpu().numpy()
+                label_ids = labels.to('cpu').numpy()
+                predictions.extend(np.argmax(logits, axis=1))
+                true_labels.extend(label_ids)
 
+        eval_loss = eval_loss / len(dataloader)
         accuracy = accuracy_score(true_labels, predictions)
         f1 = f1_score(true_labels, predictions, average='weighted')
 
-        print(f"Accuracy: {accuracy}, F1 Score: {f1}")
-
-        class_report = classification_report(true_labels, predictions)
-        print(class_report)
-
-        return accuracy, f1, class_report
+        return eval_loss, accuracy, f1
 
 class XLNetClassifier:
     def __init__(self, model_path):
@@ -128,27 +129,3 @@ class XLNetClassifier:
             prediction = torch.argmax(logits, dim=1).item()
 
         return prediction
-
-# # Example usage:
-# if __name__ == "__main__":
-#     X_train = [...]  # List of training texts
-#     y_train = [...]  # List of corresponding training labels
-#     X_test = [...]   # List of test texts
-#     y_test = [...]   # List of corresponding test labels
-
-#     train_dataset = CustomDataset(X_train, y_train, XLNetTokenizer.from_pretrained('xlnet-base-cased'), max_len=128)
-#     test_dataset = CustomDataset(X_test, y_test, XLNetTokenizer.from_pretrained('xlnet-base-cased'), max_len=128)
-
-#     train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
-#     test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
-
-#     model_path = "path_to_save_model"
-
-#     xlnet_trainer = XLNetTrainer(model_path)
-#     accuracy, f1_score = xlnet_trainer.train(train_loader, test_loader)
-
-#     # Example of using the classify_text method
-#     text_to_classify = "Your input text here"
-#     xlnet_classifier = XLNetClassifier(model_path)
-#     prediction = xlnet_classifier.classify_text(text_to_classify)
-#     print("Prediction:", prediction)
