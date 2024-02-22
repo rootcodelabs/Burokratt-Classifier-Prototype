@@ -29,7 +29,7 @@ const UploadDatasetModal = ({ show, onHide, onDatasetUploaded }) => {
     };
     // Add any additional logic or API calls here
     axios
-      .post("http://23.20.183.202:8000/datasets/import/", data, {
+      .post("http://localhost:8000/datasets/import/", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

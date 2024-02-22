@@ -20,7 +20,7 @@ export default function Classes() {
   const getClassesInfo = () => {
     setIsLoading(true);
     axios
-      .get(`http://23.20.183.202:8000/class_names/`)
+      .get(`http://localhost:8000/class_names/`)
       .then((response) => {
         // Process the response
         setAllClasses(response?.data?.data);

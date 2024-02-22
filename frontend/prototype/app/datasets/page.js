@@ -18,7 +18,7 @@ export default function Datasets() {
   const getDatasetsInfo = () => {
     setIsLoading(true);
     axios
-      .get("http://23.20.183.202:8000/datasets/info/")
+      .get("http://localhost:8000/datasets/info/")
       .then((response) => {
         setDataSets(response?.data);
         setIsLoading(false);

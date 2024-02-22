@@ -44,7 +44,7 @@ const CreateClassModal = ({ show, onHide, onSuccessCallBack }) => {
     };
     axios
       .post(
-        `http://23.20.183.202:8000/class/datasets/import/`,
+        `http://localhost:8000/class/datasets/import/`,
         importedDatasetObject,
         {
           headers: {
@@ -83,7 +83,7 @@ const CreateClassModal = ({ show, onHide, onSuccessCallBack }) => {
       data: userData,
     };
     axios
-      .post(`http://23.20.183.202:8000/class/data/add`, dataSamplesObject)
+      .post(`http://localhost:8000/class/data/add`, dataSamplesObject)
       .then((response) => {
         if (response?.status === 200) {
           alert("Class Successfully Created!");

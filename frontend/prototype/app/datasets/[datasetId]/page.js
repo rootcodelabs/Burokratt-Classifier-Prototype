@@ -43,7 +43,7 @@ function Dataset({ params }) {
     const getDatasetInfo = () => {
       setIsLoading(true);
       axios
-        .get(`http://23.20.183.202:8000/datasets/${params.datasetId}`)
+        .get(`http://localhost:8000/datasets/${params.datasetId}`)
         .then((response) => {
           // Process the response
           setTableData(response?.data?.data);
