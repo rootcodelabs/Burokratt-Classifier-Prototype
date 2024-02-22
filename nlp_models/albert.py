@@ -11,7 +11,7 @@ import os
 
 class ALBERTTrainer:
     def __init__(self, datamodel_id):
-        self.model_save_location = f'nlp_models/{datamodel_id}/model.pth'
+        self.model_save_location = f'nlp_models/{datamodel_id}/model'
         self.model = AlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=2)
         self.tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
 
@@ -91,7 +91,7 @@ class ALBERTTrainer:
 
 class ALBERTClassifier:
     def __init__(self, datamodel_id):
-        self.model_location = f'nlp_models/{datamodel_id}/model.pth'
+        self.model_location = f'nlp_models/{datamodel_id}/model'
         self.model = AlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=2)
         self.tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
