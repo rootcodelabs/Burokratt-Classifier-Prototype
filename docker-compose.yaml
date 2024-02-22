@@ -36,9 +36,9 @@ services:
     ports:
       - "8000:8000"  # Expose backend port 8000 to the host
     volumes:
-      - ./core_api.py:/app/core_api.py:rw  # Mount main Python file for live updates
-      - ./backend.Dockerfile:/Dockerfile:ro  # Mount Dockerfile for transparency
-      - ./requirements.txt:/app/requirements.txt:ro  # Mount requirements for clarity
+      - ./core_api.py:/app/core_api.py:rw
+      - ./backend.Dockerfile:/Dockerfile:ro
+      - ./requirements.txt:/app/requirements.txt:ro
     environment:
       - PYTHONUNBUFFERED=1  # Disable output buffering for debugging (optional)
   frontend:
@@ -47,9 +47,9 @@ services:
     ports:
       - "3000:3000"  # Expose frontend port 3000 to the host
     volumes:
-      - ./frontend/prototype:/app/frontend/prototype:rw  # Mount frontend project for live updates
-      - ./frontend.Dockerfile:/Dockerfile:ro  # Mount Dockerfile for transparency
-      - ./package*.json:/app/package*.json:ro  # Mount package.json for clarity
+      - ./frontend/prototype:/app/frontend/prototype:rw
+      - ./package*.json:/app/package*.json:ro
+      - ./frontend.Dockerfile:ro  # Missing colon added here
     depends_on:
       - backend  # Ensure backend starts before frontend
     # Environment variables (if needed, add here)
