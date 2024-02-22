@@ -81,3 +81,30 @@ if __name__ == "__main__":
     albert_trainer = ALBERTTrainer(model_save_location)
     accuracy, f1 = albert_trainer.train(X_train, y_train, X_test, y_test)
     print(f"Accuracy: {accuracy}, F1 Score: {f1}")
+
+class ALBERTClassifier:
+    def __init__(self, datamodel_id):
+        self.model_path = f'nlp_models/{datamodel_id}/'
+        self.model = None
+        self.tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
+        self.label_encoder = LabelEncoder()
+
+    def _tokenize_data(self, X):
+        tokenized_inputs = self.tokenizer(X, padding=True, truncation=True, return_tensors="pt")
+        return tokenized_inputs
+
+    def load_model(self):
+        if self.model is None:
+            self.model = AlbertForSequenceClassification.from_pretrained(self.model_path)
+
+    def classify_text(self, text):
+        self.load_model()
+
+        inputs = self._tokenize_data([text])
+
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            predicted_class_idx = outputs.logits.argmax().item()
+
+        predicted_class = self.label_encoder.inverse_transform([predicted_class_idx])[0]
+        return predicted_class
