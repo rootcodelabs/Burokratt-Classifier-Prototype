@@ -56,7 +56,7 @@ class ALBERTTrainer:
                         output_dir='./results',
                         num_train_epochs=3,
                         logging_steps=100,
-                        save_steps=1000,
+                        save_steps=500,  # Changed to match evaluation strategy
                         warmup_steps=500,
                         weight_decay=0.01,
                         logging_first_step=True,
@@ -71,34 +71,24 @@ class ALBERTTrainer:
                 args=training_args,
                 train_dataset=torch.utils.data.TensorDataset(train_inputs['input_ids'], train_inputs['attention_mask'], torch.tensor(y_train)),
                 eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)),
-                compute_metrics=lambda p: {'accuracy': accuracy_score(p.predictions.argmax(-1), p.label_ids),
-                                            'f1_score': f1_score(p.predictions.argmax(-1), p.label_ids, average='weighted')}
             )
-            print("@1")
 
             trainer.train()
-            print("@1")
 
             self.model.save_pretrained(self.model_path)
-            print("@1")
 
-            evaluation_results = trainer.evaluate(eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)))
-            print("@1")
+            evaluation_results = trainer.evaluate()
 
-            y_pred = trainer.predict(eval_dataset=torch.utils.data.TensorDataset(test_inputs['input_ids'], test_inputs['attention_mask'], torch.tensor(y_test)))[0]
-            print("@1")
+            y_pred = trainer.predict(test_dataset=trainer.eval_dataset)[0]
 
             class_report = classification_report(y_test, y_pred, target_names=self.label_encoder.classes_)
-            print("@1")
 
             parser = ClassificationReportParser(class_report)
-            print("@1")
 
             # Parse the report
             class_report_dict = parser.parse_report()
-            print("@1")
 
-            return evaluation_results['accuracy'], evaluation_results['f1_score'], class_report_dict, label_encoder_dict
+            return evaluation_results['eval_accuracy'], evaluation_results['eval_f1_score'], class_report_dict, label_encoder_dict
         except Exception as e:
             print("Error in albert train")
             print(e)
