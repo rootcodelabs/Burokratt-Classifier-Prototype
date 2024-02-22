@@ -6,10 +6,10 @@ from classification_proccesor import ClassificationReportParser
 from sklearn.preprocessing import LabelEncoder
 
 class BERTTrainer:
-    def __init__(self, datamodel_id):
+    def __init__(self, datamodel_id, classes_number):
         try:
             self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-            self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=3)
+            self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=classes_number)
             self.model_path = f'nlp_models/{datamodel_id}/'
         except Exception as e:
             print("Error at BERT Base class")

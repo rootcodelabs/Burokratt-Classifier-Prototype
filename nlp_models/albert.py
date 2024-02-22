@@ -10,9 +10,9 @@ import numpy as np
 import os
 
 class ALBERTTrainer:
-    def __init__(self, datamodel_id):
+    def __init__(self, datamodel_id, classes_number):
         self.model_save_location = f'nlp_models/{datamodel_id}/model'
-        self.model = AlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=2)
+        self.model = AlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=classes_number)
         self.tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
 
     def train(self, X_train, y_train, X_test, y_test):

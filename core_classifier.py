@@ -51,14 +51,14 @@ class CoreClassifierTrain:
                     model = None
                     if model_name == 'bert':
                         print("in bert")
-                        model = BERTTrainer(f"{datamodel_id}_{model_name}")
+                        model = BERTTrainer(f"{datamodel_id}_{model_name}", len(class_name_list))
                     elif model_name == 'albert':
                         print("in albert")
                         print(f"{datamodel_id}_{model_name}")
-                        model = ALBERTTrainer(f"{datamodel_id}_{model_name}")
+                        model = ALBERTTrainer(f"{datamodel_id}_{model_name}", len(class_name_list))
                     elif model_name == 'xlnet':
                         print("in xlnet")
-                        model = XLNetTrainer(f"{datamodel_id}_{model_name}")
+                        model = XLNetTrainer(f"{datamodel_id}_{model_name}", len(class_name_list))
                     print("3")
 
                     if model:

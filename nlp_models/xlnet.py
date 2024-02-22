@@ -10,13 +10,13 @@ from tqdm import tqdm
 from sklearn.metrics import classification_report
 
 class XLNetTrainer:
-    def __init__(self, datamodel_id):
+    def __init__(self, datamodel_id, classes_number):
         print("^0")
         self.model_save_path = f'nlp_models/{datamodel_id}/model'
         print("^0")
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
         print("^0")
-        self.model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=2)
+        self.model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=classes_number)
         print("^0")
         self.label_encoder = LabelEncoder()
         print("^0")
