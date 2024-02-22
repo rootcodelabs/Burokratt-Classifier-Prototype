@@ -89,41 +89,31 @@ class ALBERTTrainer:
 
         return accuracy, f1, class_report_dict, label_encoder_dict
 
-# Example usage:
-if __name__ == "__main__":
-    X_train = ["text1", "text2", "text3"]
-    y_train = ["label1", "label2", "label3"]
-    X_test = ["text4", "text5", "text6"]
-    y_test = ["label4", "label5", "label6"]
-
-    model_save_location = "nlp_models/model.pth"
-    albert_trainer = ALBERTTrainer(model_save_location)
-    accuracy, f1 = albert_trainer.train(X_train, y_train, X_test, y_test)
-    print(f"Accuracy: {accuracy}, F1 Score: {f1}")
-
 class ALBERTClassifier:
     def __init__(self, datamodel_id):
-        self.model_path = f'nlp_models/{datamodel_id}/'
-        self.model = None
+        self.model_location = f'nlp_models/{datamodel_id}/model.pth'
+        self.model = AlbertForSequenceClassification.from_pretrained('albert-base-v2', num_labels=2)
         self.tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
-        self.label_encoder = LabelEncoder()
-
-    def _tokenize_data(self, X):
-        tokenized_inputs = self.tokenizer(X, padding=True, truncation=True, return_tensors="pt")
-        return tokenized_inputs
-
-    def load_model(self):
-        if self.model is None:
-            self.model = AlbertForSequenceClassification.from_pretrained(self.model_path)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
+        self.model.eval()
 
     def classify_text(self, text):
-        self.load_model()
-
-        inputs = self._tokenize_data([text])
-
+        inputs = self.tokenizer(text, padding=True, truncation=True, return_tensors="pt").to(self.device)
         with torch.no_grad():
             outputs = self.model(**inputs)
-            predicted_class_idx = outputs.logits.argmax().item()
-
-        predicted_class = self.label_encoder.inverse_transform([predicted_class_idx])[0]
+        logits = outputs.logits
+        predicted_class = torch.argmax(logits, dim=1).cpu().numpy()[0]
         return predicted_class
+
+# # Example usage:
+# if __name__ == "__main__":
+#     # Initialize ALBERTClassifier with datamodel_id
+#     classifier = ALBERTClassifier(datamodel_id="your_datamodel_id")
+
+#     # Example text for classification
+#     text = "This is a test text for classification."
+
+#     # Classify the text
+#     predicted_class = classifier.classify_text(text)
+#     print("Predicted class:", predicted_class)
