@@ -1,11 +1,13 @@
 import os
 import numpy as np
+from classification_proccesor import ClassificationReportParser
 import torch
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score, f1_score
 from transformers import XLNetTokenizer, XLNetForSequenceClassification, AdamW
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 from tqdm import tqdm
+from sklearn.metrics import classification_report
 
 class XLNetTrainer:
     def __init__(self, datamodel_id):
@@ -23,6 +25,8 @@ class XLNetTrainer:
         print("1. Encoding labels...")
         y_train_encoded = self.label_encoder.fit_transform(y_train)
         y_test_encoded = self.label_encoder.transform(y_test)
+        
+        label_encoder_dict = dict(zip(self.label_encoder.classes_, self.label_encoder.transform(self.label_encoder.classes_)))
 
         print("2. Tokenizing inputs...")
         X_train_tokens = self.tokenizer(X_train, padding=True, truncation=True, max_length=256, return_tensors='pt')
@@ -72,7 +76,16 @@ class XLNetTrainer:
         print("^5")
         self.model.save_pretrained(self.model_save_path)
 
-        return test_accuracy, test_f1
+        predictions, true_labels = self.get_predictions(test_dataloader, device)
+        class_report = classification_report(true_labels, predictions)
+        parser = ClassificationReportParser(class_report)
+
+        # Parse the report
+        class_report_dict = parser.parse_report()
+        print("Class report")
+        print(class_report_dict)
+
+        return test_accuracy, test_f1, class_report_dict, label_encoder_dict
 
     def evaluate(self, dataloader, device, criterion):
         self.model.eval()
@@ -102,6 +115,26 @@ class XLNetTrainer:
 
         return eval_loss, accuracy, f1
 
+    def get_predictions(self, dataloader, device):
+        self.model.eval()
+        predictions = []
+        true_labels = []
+
+        with torch.no_grad():
+            for batch in dataloader:
+                input_ids, attention_mask, labels = batch
+                input_ids = input_ids.to(device)
+                attention_mask = attention_mask.to(device)
+                labels = labels.to(device)
+
+                outputs = self.model(input_ids, attention_mask=attention_mask)
+                logits = outputs.logits.detach().cpu().numpy()
+                label_ids = labels.to('cpu').numpy()
+
+                predictions.extend(np.argmax(logits, axis=1))
+                true_labels.extend(label_ids)
+
+        return predictions, true_labels
 
 class XLNetClassifier:
     def __init__(self, model_path):
