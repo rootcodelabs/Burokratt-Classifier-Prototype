@@ -15,36 +15,39 @@ class XLNetTrainer:
         self.label_encoder = LabelEncoder()
 
     def train(self, X_train, y_train, X_test, y_test):
-        # Encode labels
+        print("1. Encoding labels...")
         y_train_encoded = self.label_encoder.fit_transform(y_train)
         y_test_encoded = self.label_encoder.transform(y_test)
 
-        # Tokenize inputs
+        print("2. Tokenizing inputs...")
         X_train_tokens = self.tokenizer(X_train, padding=True, truncation=True, max_length=256, return_tensors='pt')
         X_test_tokens = self.tokenizer(X_test, padding=True, truncation=True, max_length=256, return_tensors='pt')
 
-        # Create DataLoader
+        print("3. Creating DataLoaders...")
         train_dataset = TensorDataset(X_train_tokens['input_ids'], X_train_tokens['attention_mask'], torch.tensor(y_train_encoded))
         test_dataset = TensorDataset(X_test_tokens['input_ids'], X_test_tokens['attention_mask'], torch.tensor(y_test_encoded))
 
+        print("^1")
         batch_size = 8
         train_dataloader = DataLoader(train_dataset, sampler=RandomSampler(train_dataset), batch_size=batch_size)
         test_dataloader = DataLoader(test_dataset, sampler=SequentialSampler(test_dataset), batch_size=batch_size)
 
-        # Set device
+        print("^1")
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
 
-        # Set optimizer and loss function
+        print("^1")
         optimizer = AdamW(self.model.parameters(), lr=2e-5)
         criterion = torch.nn.CrossEntropyLoss()
 
-        # Training loop
+        print("^1")
         epochs = 1
         for epoch in range(epochs):
+            print("^2")
             self.model.train()
             train_loss = 0.0
             for batch in tqdm(train_dataloader, desc=f'Epoch {epoch + 1}/{epochs}', unit='batches'):
+                print("^3")
                 input_ids, attention_mask, labels = batch
                 input_ids = input_ids.to(device)
                 attention_mask = attention_mask.to(device)
@@ -57,11 +60,11 @@ class XLNetTrainer:
                 loss.backward()
                 optimizer.step()
 
-            # Evaluate on test set
+            print("^4")
             test_loss, test_accuracy, test_f1 = self.evaluate(test_dataloader, device, criterion)
             print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss / len(train_dataloader)}, Test Loss: {test_loss}, Test Accuracy: {test_accuracy}, Test F1: {test_f1}")
 
-        # Save model
+        print("^5")
         self.model.save_pretrained(self.model_save_path)
 
         return test_accuracy, test_f1
