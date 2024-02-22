@@ -24,3 +24,6 @@ services:
     networks:
       - custom_network
 
+networks:
+  custom_network:
+
