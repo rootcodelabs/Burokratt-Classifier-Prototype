@@ -81,11 +81,10 @@ class XLNetTrainer:
                 labels = labels.to(device)
 
                 outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
-                logits = outputs.logits
-                loss = criterion(logits.view(-1, self.model.config.num_labels), labels)
+                loss = outputs.loss
                 eval_loss += loss.item()
 
-                logits = logits.detach().cpu().numpy()
+                logits = outputs.logits.detach().cpu().numpy()
                 label_ids = labels.to('cpu').numpy()
                 predictions.extend(np.argmax(logits, axis=1))
                 true_labels.extend(label_ids)
@@ -95,6 +94,7 @@ class XLNetTrainer:
         f1 = f1_score(true_labels, predictions, average='weighted')
 
         return eval_loss, accuracy, f1
+
 
 class XLNetClassifier:
     def __init__(self, model_path):
