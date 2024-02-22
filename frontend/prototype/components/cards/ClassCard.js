@@ -10,7 +10,7 @@ export default function ClassCard({ item, onUpdateSuccessCallback }) {
 
   const handleDeleteClass = (className) => {
     axios
-      .delete(`http://backend:8000/class/${className}`)
+      .delete(`http://localhost:8000/class/${className}`)
       .then((response) => {
         if (response.status == 200) {
           alert("Class Deleted Successfully!");
