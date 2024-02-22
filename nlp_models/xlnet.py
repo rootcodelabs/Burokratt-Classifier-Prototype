@@ -140,7 +140,7 @@ class XLNetClassifier:
     def __init__(self, datamodel_id):
         self.model_path = f'nlp_models/{datamodel_id}/model'
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
-        self.model = XLNetForSequenceClassification.from_pretrained(model_path)
+        self.model = XLNetForSequenceClassification.from_pretrained(self.model_path)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         # Set model to evaluation mode
