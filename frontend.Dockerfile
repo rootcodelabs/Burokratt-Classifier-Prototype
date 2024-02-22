@@ -8,6 +8,8 @@ RUN npm install
 
 COPY frontend/prototype/ .
 
+RUN npm run build
+
 EXPOSE 3000
 
 CMD ["npm", "start"]
