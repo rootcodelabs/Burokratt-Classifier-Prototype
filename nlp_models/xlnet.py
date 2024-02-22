@@ -9,10 +9,15 @@ from tqdm import tqdm
 
 class XLNetTrainer:
     def __init__(self, datamodel_id):
+        print("^0")
         self.model_save_path = f'nlp_models/{datamodel_id}/model'
+        print("^0")
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
+        print("^0")
         self.model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=2)
+        print("^0")
         self.label_encoder = LabelEncoder()
+        print("^0")
 
     def train(self, X_train, y_train, X_test, y_test):
         print("1. Encoding labels...")
