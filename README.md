@@ -7,3 +7,8 @@ docker run -d -p 8000:8000 classifier
 docker logs -f 2b1dbd6bfd32
 
 docker-compose up --build
+
+
+docker build -t classifier -f backend.Dockerfile .
+
+docker run -d -p 8000:8000 --name classifier_backend classifier
