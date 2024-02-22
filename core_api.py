@@ -74,6 +74,10 @@ class NewData(BaseModel):
 class ClassNames(BaseModel):
     class_name_list:List[str]
 
+class ClassifyTextData(BaseModel):
+    datamodel_id: str
+    text: str
+
 # Endpoint to retrieve information about datasets : TESTED
 @app.get("/datasets/info/")
 def get_datasets_info():
@@ -361,6 +365,11 @@ def class_data(class_name:str):
         data_list.append({'data_id':data_id, 'data':data})
     return {'data':data_list}
 
+# #API endpoint to delete given class :
+# @app.delete("/class/{class_name}")
+# def delete_class(class_name: str):
+#     SQLiteDatabase().execute_query(f"DELETE FROM model_info WHERE datamodel_id = '{datamodel_id}'")
+
 #API endpoint to add data to given class : TESTED
 @app.post("/class/data/add")
 def class_data(new_data:NewData):
@@ -472,9 +481,9 @@ def train_and_evaluate(data: TrainAndEvaluateInput):
 
 # API endpoint to classify text using a specified model
 @app.post("/classify_text/")
-def classify_text(datamodel_id: str, text: str):
+def classify_text(data : ClassifyTextData):
     try:
-        result = text_classifier.classify_text(datamodel_id, text)
+        result = text_classifier.classify_text(data.datamodel_id, data.text)
         return {"classification_result": result}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
