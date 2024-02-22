@@ -414,6 +414,24 @@ def get_model_info():
         raise HTTPException(status_code=500, detail=str(e))
         return []
 
+# API endpoint to retrieve information about all data inside model_info table
+@app.get("/model_names/")
+def get_model_names():
+    try:
+        query = "SELECT datamodel_id, datamodel_name FROM model_info"
+        model_info_records = SQLiteDatabase().execute_query(query)
+
+        print(f"model_info_records : \n {model_info_records}")
+
+        model_info_dict = []
+        for model in model_info_records:
+            model_info_dict.append({'model_id':model[0], 'model_name':model[1]})
+
+        return model_info_dict
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+        return []
+
 # API endpoint to delete a specific row in the model_info table and corresponding model folder
 @app.delete("/model_info/{datamodel_id}")
 def delete_model_info(datamodel_id: str):
