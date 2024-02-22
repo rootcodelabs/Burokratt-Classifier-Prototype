@@ -11,15 +11,10 @@ from sklearn.metrics import classification_report
 
 class XLNetTrainer:
     def __init__(self, datamodel_id, classes_number):
-        print("^0")
         self.model_save_path = f'nlp_models/{datamodel_id}/model'
-        print("^0")
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
-        print("^0")
         self.model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=classes_number)
-        print("^0")
         self.label_encoder = LabelEncoder()
-        print("^0")
 
     def train(self, X_train, y_train, X_test, y_test):
         print("1. Encoding labels...")
@@ -36,27 +31,21 @@ class XLNetTrainer:
         train_dataset = TensorDataset(X_train_tokens['input_ids'], X_train_tokens['attention_mask'], torch.tensor(y_train_encoded))
         test_dataset = TensorDataset(X_test_tokens['input_ids'], X_test_tokens['attention_mask'], torch.tensor(y_test_encoded))
 
-        print("^1")
         batch_size = 8
         train_dataloader = DataLoader(train_dataset, sampler=RandomSampler(train_dataset), batch_size=batch_size)
         test_dataloader = DataLoader(test_dataset, sampler=SequentialSampler(test_dataset), batch_size=batch_size)
 
-        print("^1")
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
 
-        print("^1")
         optimizer = AdamW(self.model.parameters(), lr=2e-5)
         criterion = torch.nn.CrossEntropyLoss()
 
-        print("^1")
         epochs = 1
         for epoch in range(epochs):
-            print("^2")
             self.model.train()
             train_loss = 0.0
             for batch in tqdm(train_dataloader, desc=f'Epoch {epoch + 1}/{epochs}', unit='batches'):
-                print("^3")
                 input_ids, attention_mask, labels = batch
                 input_ids = input_ids.to(device)
                 attention_mask = attention_mask.to(device)
@@ -69,11 +58,9 @@ class XLNetTrainer:
                 loss.backward()
                 optimizer.step()
 
-            print("^4")
             test_loss, test_accuracy, test_f1 = self.evaluate(test_dataloader, device, criterion)
             print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss / len(train_dataloader)}, Test Loss: {test_loss}, Test Accuracy: {test_accuracy}, Test F1: {test_f1}")
 
-        print("^5")
         self.model.save_pretrained(self.model_save_path)
 
         predictions, true_labels = self.get_predictions(test_dataloader, device)
@@ -143,18 +130,14 @@ class XLNetClassifier:
         self.model = XLNetForSequenceClassification.from_pretrained(self.model_path)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-        # Set model to evaluation mode
         self.model.eval()
-        # Send model to appropriate device
         self.model.to(self.device)
 
     def classify_text(self, text):
-        # Tokenize input text
         inputs = self.tokenizer(text, padding=True, truncation=True, max_length=256, return_tensors="pt")
         input_ids = inputs['input_ids'].to(self.device)
         attention_mask = inputs['attention_mask'].to(self.device)
 
-        # Get model prediction
         with torch.no_grad():
             outputs = self.model(input_ids, attention_mask=attention_mask)
             logits = outputs.logits

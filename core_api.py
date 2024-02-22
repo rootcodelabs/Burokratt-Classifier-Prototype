@@ -11,7 +11,7 @@ from text_classifier import TextClassifier
 from core_classifier import CoreClassifierTrain
 
 app = FastAPI()
-# db = SQLiteDatabase()
+
 data_importer = DataImporter()
 text_classifier = TextClassifier()
 core_classifier_trainer = CoreClassifierTrain()
@@ -117,12 +117,6 @@ def add_label(label_input: LabelInput):
         for entry in label_input.changed_data:
             class_name = str(entry.label).upper()
             data_id = str(entry.data_id)
-            print("#$@#$@")
-            print(class_name)
-            print(data_id)
-            print("#$@#$@")
-        # class_name = str(label_input.class_name).upper()
-        # print(class_name)
 
             query = f"UPDATE data_info SET class_name = '{class_name}' WHERE dataset_id = '{label_input.dataset_id}' AND data_id = '{data_id}'"
             SQLiteDatabase().execute_query(query)
@@ -188,10 +182,6 @@ def get_single_dataset(dataset_id: str):
         class_names = []
         for class_name in result:
             class_names.append(class_name[0])
-
-        print("DULAN TEST ::::::::::::::::::::::::::::::::::::::::::::")
-        print({"labels": class_names, "data": dataset_info})
-        print("DULAN TEST ::::::::::::::::::::::::::::::::::::::::::::")
 
         return {"labels": class_names, "data": dataset_info}
     except Exception as e:
@@ -354,12 +344,10 @@ def class_data(class_names : ClassNames):
 # API endpoint to retrieve data for given class : TESTED
 @app.get("/class/data/{class_name}")
 def class_data(class_name:str):
-    print(class_name)
+
     data_list = []
     query = f"""SELECT data_id, data FROM data_info WHERE class_name = '{class_name.upper()}'"""
-    # query = f"""SELECT data_id, data, class_name FROM data_info"""
     result = SQLiteDatabase().execute_query(query)
-    print(result)
     for row in result:
         data_id, data = row
         data_list.append({'data_id':data_id, 'data':data})
@@ -376,7 +364,7 @@ def delete_class(class_name: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
         return False
-        
+
 #API endpoint to add data to given class : TESTED
 @app.post("/class/data/add")
 def class_data(new_data:NewData):
@@ -499,55 +487,3 @@ def classify_text(data : ClassifyTextData):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # Endpoint to delete a dataset
-# @app.delete("/datasets/delete/")
-# def delete_dataset(dataset_id: str):
-#     try:
-#         SQLiteDatabase().delete_record("dataset_info", dataset_id)
-#         return {"message": f"Dataset with dataset_id {dataset_id} deleted successfully"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-'''
-
-# API endpoint to add new data or multiple data with different labels to the dataset
-@app.post("/datasets/add_multi_data/")
-def add_multi_data(multi_data_input: MultiDataInput):
-    try:
-        for data_input in multi_data_input.data_inputs:
-            dataset_exists = SQLiteDatabase().execute_query(f"SELECT COUNT(*) FROM dataset_info WHERE dataset_id = '{multi_data_input.dataset_id}'")
-            if dataset_exists[0][0] == 0:
-                raise HTTPException(status_code=404, detail=f"Dataset with dataset_id {multi_data_input.dataset_id} does not exist.")
-
-            last_data_id_query = f"SELECT MAX(CAST(data_id AS INTEGER)) FROM dataset_info WHERE dataset_id = '{multi_data_input.dataset_id}'"
-            last_data_id_result = SQLiteDatabase().execute_query(last_data_id_query)
-            last_data_id = last_data_id_result[0][0] if last_data_id_result[0][0] is not None else 0
-
-            new_data_id = str(int(last_data_id) + 1)
-
-            new_data_record = {
-                'dataset_id': multi_data_input.dataset_id,
-                'data_id': new_data_id,
-                'data': data_input.data,
-                'class_name': data_input.class_name
-            }
-            SQLiteDatabase().insert_record('dataset_info', new_data_record)
-
-        return {"message": f"New data added to dataset {multi_data_input.dataset_id}"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-        '''

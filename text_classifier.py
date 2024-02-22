@@ -32,11 +32,7 @@ class TextClassifier:
             model_class_info_records = SQLiteDatabase().execute_query(query)
             print(f"model_class_info_records : \n {model_class_info_records}")
             class_label_name_dict = {}
-            print(model_class_info_records)
             for model_class in model_class_info_records:
-                print("@@@")
-                print(model_class)
-                print("@@@")
                 class_label_name_dict[model_class[1]] = model_class[0]
 
             return class_label_name_dict[int(prediction)]

@@ -63,10 +63,6 @@ class SQLiteDatabase:
             placeholders = ', '.join(['?' for _ in record.keys()])
             insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
-            print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-            print(f"Insert Query {insert_query}")
-            print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-
             self.cursor.execute(insert_query, list(record.values()))
             self.conn.commit()
         except Exception as e:
@@ -178,26 +174,3 @@ class SQLiteDatabase:
     def close_connection(self):
         """Close the database connection."""
         self.conn.close()
-
-# # Example usage:
-if __name__ == "__main__":
-    # db_path = os.path.join(os.getcwd(), 'classifier.db')
-    db = SQLiteDatabase()
-
-#     db.create_table_with_foreign_key('model_info', {'datamodel_id': 'TEXT PRIMARY KEY', 'accuracy': 'REAL', 'f1_score': 'REAL', 'dataset_id' : 'TEXT'}, 'dataset_id', 'dataset_info')
-#     db.create_table_with_composite_key('dataset_info', {'dataset_id': 'TEXT', 'data_id': 'TEXT', 'data': 'TEXT', 'label': 'TEXT'}, 'dataset_id', 'data_id')
-#     db.view_table_structure()
-
-#     # db.insert_record('models', {'datamodel_id': 'John Doe', 'accuracy': 30.253, 'f1_score': 45.225})
-#     # db.insert_record('users', {'name': 'Jane Smith', 'age': 25})
-
-#     # db.update_record('users', 1, {'name': 'John Updated', 'age': 35})
-
-#     # db.delete_record('users', 2)
-
-#     # result = db.execute_query("SELECT * FROM models")
-#     # print(result)
-
-    db.view_table_data('class_info')
-    db.view_table_data('class_dataset_info')
-    db.close_connection()

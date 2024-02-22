@@ -33,27 +33,3 @@ class ClassificationReportParser:
                     'support': support
                 }
         return report_dict
-
-
-# # Sample classification report string
-# report_string = '''
-#               precision    recall  f1-score   support
-
-#            0       0.78      0.88      0.82        67
-#            1       0.71      0.68      0.69        41
-#            2       0.82      0.68      0.74        37
-#            3       0.271      0.648      0.629        451
-#            4       0.832      0.648      0.734        347
-
-#     accuracy                           0.77       145
-#    macro avg       0.77      0.75      0.75       145
-# weighted avg       0.77      0.77      0.77       145
-# '''
-
-# # Create an instance of the ClassificationReportParser class
-# parser = ClassificationReportParser(report_string)
-
-# # Parse the report
-# report_dict = parser.parse_report()
-
-# print(report_dict)

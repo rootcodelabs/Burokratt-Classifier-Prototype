@@ -1,6 +1,7 @@
 Table: model_info
 ----------
 datamodel_id | TEXT
+datamodel_name | TEXT
 accuracy | REAL
 f1_score | REAL
 

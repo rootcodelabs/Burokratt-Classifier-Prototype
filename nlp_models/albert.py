@@ -105,15 +105,3 @@ class ALBERTClassifier:
         logits = outputs.logits
         predicted_class = torch.argmax(logits, dim=1).cpu().numpy()[0]
         return predicted_class
-
-# # Example usage:
-# if __name__ == "__main__":
-#     # Initialize ALBERTClassifier with datamodel_id
-#     classifier = ALBERTClassifier(datamodel_id="your_datamodel_id")
-
-#     # Example text for classification
-#     text = "This is a test text for classification."
-
-#     # Classify the text
-#     predicted_class = classifier.classify_text(text)
-#     print("Predicted class:", predicted_class)
