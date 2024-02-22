@@ -6,15 +6,15 @@ from database.database_connection import SQLiteDatabase
 
 class DataImporter:
     def __init__(self):
-        # self.db = SQLiteDatabase()
         pass
 
     def import_data_from_file(self, dataset_name, file_location, upload_class_name = False):
         try:
             data, file_type = self._load_data(file_location)
+
             if data:
                 dataset_id = int(time())
-                if file_type == "json" and type(data)==dict:
+                if (file_type == "json" or "csv") and type(data)==dict:
                     data_point_count = 0
                     for class_name, values in data.items():
                         for string_value in values:
@@ -84,11 +84,18 @@ class DataImporter:
 
     def _load_csv(self, file_location):
         try:
-            data = []
+            data = {}
             with open(file_location, 'r') as file:
                 reader = csv.reader(file)
                 for row in reader:
-                    data.extend(row)
+                    if len(row) == 1:  # If only one column
+                        data.append(row[0])
+                    elif len(row) == 2:  # If two columns
+                        key = row[1]
+                        value = row[0]
+                        if key not in data:
+                            data[key] = []
+                        data[key].append(value)
             return data
         except Exception as e:
             self.handle_error('_load_csv', e)
