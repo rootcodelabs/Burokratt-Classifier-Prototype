@@ -38,21 +38,21 @@ class CoreClassifierTrain:
                     model = None
                     if model_name == 'bert':
                         print("in bert")
-                        model = BERTTrainer(f"{datamodel_id}_{model_name}", len(class_name_list))
+                        model = BERTTrainer(f"A{datamodel_id}_{model_name}", len(class_name_list))
                     elif model_name == 'albert':
                         print("in albert")
                         print(f"{datamodel_id}_{model_name}")
-                        model = ALBERTTrainer(f"{datamodel_id}_{model_name}", len(class_name_list))
+                        model = ALBERTTrainer(f"A{datamodel_id}_{model_name}", len(class_name_list))
                     elif model_name == 'xlnet':
                         print("in xlnet")
-                        model = XLNetTrainer(f"{datamodel_id}_{model_name}", len(class_name_list))
+                        model = XLNetTrainer(f"A{datamodel_id}_{model_name}", len(class_name_list))
 
                     if model:
                         accuracy, f1_score, class_report_dict, label_encoder_dict = model.train(X_train, y_train, X_test, y_test)
                         print(f'Label Encoder dict : \n {label_encoder_dict}')
                         for class_name_str, class_label in label_encoder_dict.items():
                             result = SQLiteDatabase().insert_record('model_class_info', 
-                                    {'datamodel_id': f'{datamodel_id}_{model_name}', 
+                                    {'datamodel_id': f'A{datamodel_id}_{model_name}', 
                                     'class_name': class_name_str, 'class_label': int(class_label), 
                                     'precision': class_report_dict[str(class_label)]['precision'],
                                     'recall': class_report_dict[str(class_label)]['recall'],
