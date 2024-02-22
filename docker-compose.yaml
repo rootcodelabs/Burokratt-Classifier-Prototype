@@ -1,29 +1,61 @@
-version: '3.8'
+# version: '3.8'
+
+# services:
+#   backend:
+#     build:
+#       context: .
+#       dockerfile: backend.Dockerfile
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - PYTHONUNBUFFERED=1
+#     command: python core_api.py
+#     networks:
+#       - custom_network
+
+#   frontend:
+#     build:
+#       context: .
+#       dockerfile: frontend.Dockerfile
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       - REACT_APP_BACKEND_URL=http://backend:8000
+#     networks:
+#       - custom_network
+
+# networks:
+#   custom_network:
+
+version: "3.9"
 
 services:
   backend:
-    build:
-      context: .
-      dockerfile: backend.Dockerfile
+    build: .  # Build from the current directory (where Dockerfile is located)
+    context: .  # Use the same context for both frontend and backend services
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Expose backend port 8000 to the host
+    volumes:
+      - ./core_api.py:/app/core_api.py:rw  # Mount main Python file for live updates
+      - ./backend.Dockerfile:/Dockerfile:ro  # Mount Dockerfile for transparency
+      - ./requirements.txt:/app/requirements.txt:ro  # Mount requirements for clarity
     environment:
-      - PYTHONUNBUFFERED=1
-    command: python core_api.py
-    networks:
-      - custom_network
-
+      - PYTHONUNBUFFERED=1  # Disable output buffering for debugging (optional)
   frontend:
-    build:
-      context: .
-      dockerfile: frontend.Dockerfile
+    build: .  # Build from the current directory
+    context: .  # Use the same context for both frontend and backend services
     ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_BACKEND_URL=http://backend:8000
-    networks:
-      - custom_network
+      - "3000:3000"  # Expose frontend port 3000 to the host
+    volumes:
+      - ./frontend/prototype:/app/frontend/prototype:rw  # Mount frontend project for live updates
+      - ./frontend.Dockerfile:/Dockerfile:ro  # Mount Dockerfile for transparency
+      - ./package*.json:/app/package*.json:ro  # Mount package.json for clarity
+    depends_on:
+      - backend  # Ensure backend starts before frontend
+    # Environment variables (if needed, add here)
 
 networks:
-  custom_network:
+  internal:  # Define an internal network for service communication
 
+volumes:
+  # Define persistent volumes if needed (e.g., database)
