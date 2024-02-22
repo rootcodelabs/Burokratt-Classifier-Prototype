@@ -53,8 +53,7 @@ class XLNetTrainer:
                 optimizer.zero_grad()
                 outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
                 loss = outputs.loss
-                train_loss += loss.item()
-
+                train_loss += loss.item()  # Accumulate loss here
                 loss.backward()
                 optimizer.step()
 
