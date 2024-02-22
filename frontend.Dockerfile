@@ -6,6 +6,8 @@ COPY frontend/prototype/package*.json ./
 
 RUN npm install
 
+RUN npm install react-bootstrap bootstrap
+
 COPY frontend/prototype/ .
 
 RUN npm run build
