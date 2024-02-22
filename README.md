@@ -20,6 +20,8 @@ Build and run the Docker containers using the following Docker command:
 docker-compose up --build
 ```
 
+And then you can view the web app by going to [http://localhost:3000/](http://localhost:3000/)
+
 To view logs, use the command:
 
 ```bash
