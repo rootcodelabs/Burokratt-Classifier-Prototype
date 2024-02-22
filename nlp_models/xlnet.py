@@ -137,35 +137,28 @@ class XLNetTrainer:
         return predictions, true_labels
 
 class XLNetClassifier:
-    def __init__(self, model_path):
-        self.model_path = model_path
+    def __init__(self, datamodel_id):
+        self.model_path = f'nlp_models/{datamodel_id}/model'
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
+        self.model = XLNetForSequenceClassification.from_pretrained(model_path)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        # Set model to evaluation mode
+        self.model.eval()
+        # Send model to appropriate device
+        self.model.to(self.device)
 
     def classify_text(self, text):
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # Tokenize input text
+        inputs = self.tokenizer(text, padding=True, truncation=True, max_length=256, return_tensors="pt")
+        input_ids = inputs['input_ids'].to(self.device)
+        attention_mask = inputs['attention_mask'].to(self.device)
 
-        model = XLNetForSequenceClassification.from_pretrained(self.model_path)
-        model.to(device)
-        model.eval()
-
-        inputs = self.tokenizer.encode_plus(
-            text,
-            None,
-            add_special_tokens=True,
-            max_length=128,
-            padding='max_length',
-            truncation=True,
-            return_token_type_ids=True,
-            return_tensors='pt'
-        )
-
-        input_ids = inputs['input_ids'].to(device)
-        attention_mask = inputs['attention_mask'].to(device)
-
+        # Get model prediction
         with torch.no_grad():
-            outputs = model(input_ids, attention_mask=attention_mask)
+            outputs = self.model(input_ids, attention_mask=attention_mask)
             logits = outputs.logits
+            probabilities = torch.softmax(logits, dim=1)
+            predicted_class = torch.argmax(probabilities, dim=1).item()
 
-            prediction = torch.argmax(logits, dim=1).item()
-
-        return prediction
+        return predicted_class
