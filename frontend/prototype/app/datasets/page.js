@@ -18,7 +18,7 @@ export default function Datasets() {
   const getDatasetsInfo = () => {
     setIsLoading(true);
     axios
-      .get("http://0.0.0.0:8000/datasets/info/")
+      .get("http://backend:8000/datasets/info/")
       .then((response) => {
         setDataSets(response?.data);
         setIsLoading(false);
