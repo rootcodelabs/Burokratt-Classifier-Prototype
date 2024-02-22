@@ -1,7 +1,7 @@
 from sklearn.model_selection import train_test_split
 from nlp_models.bert import BERTTrainer
 from nlp_models.albert import ALBERTTrainer
-from nlp_models.xlnet_old import XLNetTrainer
+from nlp_models.xlnet import XLNetTrainer
 from database.database_connection import SQLiteDatabase
 import json
 import time
