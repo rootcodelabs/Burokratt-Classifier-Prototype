@@ -60,7 +60,7 @@ class CoreClassifierTrain:
                         print(f"{model_name.capitalize()} Accuracy:", accuracy)
                         print(f"{model_name.capitalize()} F1 Score:", f1_score)
                         print(f"{model_name.capitalize()} class_report:", class_report_dict)
-                        SQLiteDatabase().insert_record('model_info', {'datamodel_id': f'{datamodel_id}_{model_name}', 'datamodel_name':f'{datamodel_name}_{model_name}', 'accuracy': accuracy, 'f1_score': f1_score})
+                        SQLiteDatabase().insert_record('model_info', {'datamodel_id': f'A{datamodel_id}_{model_name}', 'datamodel_name':f'{datamodel_name}_{model_name}', 'accuracy': accuracy, 'f1_score': f1_score})
 
                 return True, []
             else:
