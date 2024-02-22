@@ -7,8 +7,6 @@ services:
       dockerfile: backend.Dockerfile
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app
     environment:
       - PYTHONUNBUFFERED=1
     command: python core_api.py
