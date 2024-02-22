@@ -365,11 +365,18 @@ def class_data(class_name:str):
         data_list.append({'data_id':data_id, 'data':data})
     return {'data':data_list}
 
-# #API endpoint to delete given class :
-# @app.delete("/class/{class_name}")
-# def delete_class(class_name: str):
-#     SQLiteDatabase().execute_query(f"DELETE FROM model_info WHERE datamodel_id = '{datamodel_id}'")
-
+#API endpoint to delete given class :
+@app.delete("/class/{class_name}")
+def delete_class(class_name: str):
+    try:
+        SQLiteDatabase().execute_query(f"DELETE FROM class_info WHERE class_name = '{class_name}'")
+        SQLiteDatabase().execute_query(f"DELETE FROM class_dataset_info WHERE class_name = '{class_name}'")
+        SQLiteDatabase().execute_query(f"DELETE FROM data_info WHERE class_name = '{class_name}'")
+        return True
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+        return False
+        
 #API endpoint to add data to given class : TESTED
 @app.post("/class/data/add")
 def class_data(new_data:NewData):
