@@ -18,11 +18,11 @@ class BERTTrainer:
 
     def train(self, X_train, y_train_str, X_test, y_test_str):
         try:
-            #print("!1")
+            print("!1")
             train_encodings = self.tokenizer(X_train, truncation=True, padding=True)
-            #print("!1")
+            print("!1")
             test_encodings = self.tokenizer(X_test, truncation=True, padding=True)
-            #print("!1")
+            print("!1")
 
             y_train = []
             y_test = []
@@ -37,79 +37,79 @@ class BERTTrainer:
             #     y_test.append(self.converter.string_to_integer(example))
 
             train_labels = torch.tensor(y_train)
-            # #print("!1")
+            print("!1")
             test_labels = torch.tensor(y_test)
-            # #print("!1")
+            print("!1")
 
             train_dataset = torch.utils.data.TensorDataset(torch.tensor(train_encodings['input_ids']),
                                                         torch.tensor(train_encodings['attention_mask']),
                                                         train_labels)
-            # #print("!1")
+            print("!1")
             test_dataset = torch.utils.data.TensorDataset(torch.tensor(test_encodings['input_ids']),
                                                         torch.tensor(test_encodings['attention_mask']),
                                                         test_labels)
-            # #print("!1")
+            print("!1")
 
             train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=8, shuffle=True)
-            #print("!1")
+            print("!1")
             test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=8, shuffle=False)
-            #print("!1")
+            print("!1")
 
             optimizer = torch.optim.AdamW(self.model.parameters(), lr=5e-5)
-            #print("!1")
+            print("!1")
             criterion = torch.nn.CrossEntropyLoss()
-            #print("!1")
+            print("!1")
 
             self.model.train()
-            #print("!1")
+            print("!1")
             for epoch in range(1):  # 1 epoch
-                #print("!2")
+                print("!2")
                 for batch in train_loader:
-                    #print("!3")
+                    print("!3")
                     input_ids, attention_mask, labels = batch
-                    #print("!3")
+                    print("!3")
                     optimizer.zero_grad()
-                    #print("!3")
+                    print("!3")
                     outputs = self.model(input_ids, attention_mask=attention_mask, labels=labels)
-                    #print("!3")
+                    print("!3")
                     loss = outputs.loss
-                    #print("!3")
+                    print("!3")
                     loss.backward()
-                    #print("!3")
+                    print("!3")
                     optimizer.step()
-                    #print("!3")
+                    print("!3")
 
             
-            #print("!4")
+            print("!4")
             self.model.eval()
-            #print("!4")
+            print("!4")
             y_pred = []
             with torch.no_grad():
-                #print("!5")
+                print("!5")
                 for batch in test_loader:
-                    #print("!6")
+                    print("!6")
                     input_ids, attention_mask, labels = batch
-                    #print("!6")
+                    print("!6")
                     outputs = self.model(input_ids, attention_mask=attention_mask)
-                    #print("!6")
+                    print("!6")
                     logits = outputs.logits
-                    #print("!6")
+                    print("!6")
                     _, predicted = torch.max(logits, 1)
-                    #print("!6")
+                    print("!6")
                     y_pred.extend(predicted.tolist())
-                    #print("!6")
+                    print("!6")
                     
-            #print("!7")
+            print("!7")
             accuracy = accuracy_score(y_test, y_pred)
-            #print("!7")
+            print("!7")
             f1 = f1_score(y_test, y_pred, average='weighted')
-            #print("!7")
+            print("!7")
 
             class_report = classification_report(y_test, y_pred)
-            #print("!7")
+            print("!7")
 
             self.model.save_pretrained(self.model_path)
-            #print("!7")
+            print("!7")
 
             parser = ClassificationReportParser(class_report)
 
