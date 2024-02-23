@@ -1,7 +1,8 @@
 "use client";
+import "bootstrap/dist/css/bootstrap.css";
 import React, { useEffect, useState } from "react";
 import { Button, Container } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.css";
+
 import CreateClassModal from "@/components/modals/CreateClassModal";
 import { getAllDatasetsAPIData, getSingleClassAPIData } from "@/Temp/data";
 import axios from "axios";
