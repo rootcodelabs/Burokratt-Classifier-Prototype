@@ -98,7 +98,7 @@ class DataImporter:
                         value = row[0]
                         if key not in data:
                             data[key] = []
-                        data[key].append(value)
+                        data[key] = value
             if state:
                 return data_list
             else:
@@ -117,3 +117,8 @@ class DataImporter:
     def handle_error(self, func_name, error):
         print(f"Error in {self.__class__.__name__}.{func_name}: {error}")
         return False
+
+if __name__ == "__main__":
+    data_importer = DataImporter()
+    url = "uploaded_files/space.csv"
+    data_importer.import_data_from_file("test11", url)
