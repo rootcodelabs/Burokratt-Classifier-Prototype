@@ -68,5 +68,4 @@ The prototype consists of the following main sections accessible from the sideba
 ## 3. Special Points to Consider
 
 - YAML files and labeled CSV files are not considered in the prototype.
-- All models are set to train for one epoch to save time and resources, which may result in less accurate trained models.
-- Further configurable options to adjust models by users have not been enabled in the prototype.
+- All models are set to train for one epoch to save time and resources, but this is configurable through code.
